@@ -42,6 +42,9 @@ export class User {
 
   @Prop({ type: Types.ObjectId, ref: 'Zone' })
   zoneId?: Types.ObjectId;
+
+  @Prop()
+  phone?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

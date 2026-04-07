@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { UserResponseDto } from '../dto/user-response.dto';
+import { UpdateProfileDto } from '../dto/update-profile.dto';
 
 interface ISyncPayload {
   email: string;
@@ -18,7 +19,6 @@ interface ISyncPayload {
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  // Crée || met à jour un user après login Auth0
   async syncFromAuth0(
     auth0Id: string,
     payload: ISyncPayload,
@@ -114,6 +114,19 @@ export class UsersService {
     return { message: 'Utilisateur supprimé' };
   }
 
+  async updateProfile(
+    auth0Id: string,
+    updates: UpdateProfileDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.userModel.findOneAndUpdate(
+      { auth0Id },
+      { $set: updates },
+      { returnDocument: 'after' },
+    );
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+    return this.toDto(user);
+  }
+
   private toDto(user: UserDocument): UserResponseDto {
     return {
       id: (user._id as unknown as string).toString(),
@@ -125,6 +138,9 @@ export class UsersService {
       isActive: user.isActive,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      phone: user.phone,
+      zoneStatut: user.zoneStatut,
+      zoneId: user.zoneId?.toString(),
     };
   }
 }
