@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsBoolean } from 'class-validator';
+import { IsEnum, IsOptional, IsBoolean, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '../schemas/user.schema';
 
@@ -12,4 +12,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({ description: 'Téléphone' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }

@@ -5,10 +5,21 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+// Stocke une référence à la fonction getAccessTokenSilently
+let getAccessToken: (() => Promise<string>) | null = null
+
+export function setAuth0TokenGetter(getToken: () => Promise<string>) {
+  getAccessToken = getToken
+}
+
+api.interceptors.request.use(async (config) => {
+  if (getAccessToken) {
+    try {
+      const token = await getAccessToken()
+      config.headers.Authorization = `Bearer ${token}`
+    } catch {
+      // token indisponible
+    }
   }
   return config
 })

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  Patch,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -9,8 +17,8 @@ import { UsersService } from '../../modules/users/services/users.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { UserResponseDto } from '../../modules/users/dto/user-response.dto';
 import type { Request } from 'express';
+import { UpdateProfileDto } from 'src/modules/users/dto/update-profile.dto';
 
-// Namespace des claims custom injectés par l'Action Auth0 Post-Login
 const AUTH0_NAMESPACE = 'https://api.hoodly.fr';
 
 interface IAuth0JwtPayload {
@@ -60,5 +68,20 @@ export class AuthController {
   async getMe(@Req() req: Request): Promise<UserResponseDto> {
     const payload = req.user as IAuth0JwtPayload;
     return await this.usersService.getProfileByAuth0Id(payload.sub);
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Mettre à jour son profil (onboarding)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profil mis à jour',
+    type: UserResponseDto,
+  })
+  async updateProfile(
+    @Req() req: Request,
+    @Body() body: UpdateProfileDto,
+  ): Promise<UserResponseDto> {
+    const payload = req.user as IAuth0JwtPayload;
+    return await this.usersService.updateProfile(payload.sub, body);
   }
 }

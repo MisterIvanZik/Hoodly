@@ -9,6 +9,7 @@ import { IncidentsModule } from './modules/incidents/incidents.module';
 import { ZonesModule } from './modules/zones/zones.module';
 import { EventsModule } from './modules/events/events.module';
 import { ServicesModule } from './modules/services/services.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ServicesModule } from './modules/services/services.module';
     ZonesModule,
     EventsModule,
     ServicesModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

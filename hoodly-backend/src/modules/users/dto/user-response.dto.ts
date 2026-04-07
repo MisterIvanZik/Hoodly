@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '../schemas/user.schema';
+import { ZoneMembershipStatus } from '../enums/zone-membership-status.enum';
 
 export class UserResponseDto {
   @ApiProperty({ description: 'ID MongoDB' })
@@ -28,4 +29,16 @@ export class UserResponseDto {
 
   @ApiPropertyOptional({ description: 'Date de mise à jour' })
   updatedAt?: Date;
+
+  @ApiPropertyOptional({ description: 'Téléphone' })
+  phone?: string;
+
+  @ApiPropertyOptional({
+    description: 'Statut de zone',
+    enum: ZoneMembershipStatus,
+  })
+  zoneStatut?: string;
+
+  @ApiPropertyOptional({ description: 'ID de la zone' })
+  zoneId?: string;
 }
