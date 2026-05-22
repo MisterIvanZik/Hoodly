@@ -22,15 +22,19 @@ public class PkceFlow {
         return codeVerifier;
     }
 
-    public String buildAuthUrl(String domain, String clientId
-                               , String redirectUri,
-                               String codeChallenge) {
-        return "https://" + domain + "/authorize" +
+    public String buildAuthUrl(String domain, String clientId,
+                               String redirectUri, String codeChallenge,
+                               String audience) {
+        String url = "https://" + domain + "/authorize" +
                 "?response_type=code" +
                 "&client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
                 "&scope=openid%20profile%20email" +
                 "&code_challenge=" + codeChallenge +
                 "&code_challenge_method=S256";
+        if (audience != null && !audience.isEmpty()) {
+            url += "&audience=" + audience;
+        }
+        return url;
     }
 }

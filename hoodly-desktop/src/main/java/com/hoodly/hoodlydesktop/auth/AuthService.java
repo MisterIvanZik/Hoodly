@@ -39,7 +39,7 @@ public class AuthService {
                 String codeChallenge = pkceFlow.generateChallenge();
 
                 String authUrl = pkceFlow.buildAuthUrl(
-                        DOMAIN, CLIENT_ID, REDIRECT_URI, codeChallenge
+                        DOMAIN, CLIENT_ID, REDIRECT_URI, codeChallenge, AUDIENCE
                 );
 
                 Desktop.getDesktop().browse(new URI(authUrl));
