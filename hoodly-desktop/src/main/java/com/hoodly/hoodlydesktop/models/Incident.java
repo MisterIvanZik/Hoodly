@@ -1,5 +1,6 @@
 package com.hoodly.hoodlydesktop.models;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Incident {
 
     @JsonProperty("_id")
+    @JsonAlias("id")
     private String id;
     private String type;
     private String description;
