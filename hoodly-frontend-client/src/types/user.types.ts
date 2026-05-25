@@ -15,4 +15,5 @@ export interface User {
   updatedAt?: Date
   refusalReason?: string
   refusalType?: 'zone' | 'membership'
+  points?: number
 }

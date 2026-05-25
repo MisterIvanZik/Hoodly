@@ -149,6 +149,7 @@ export class UsersService {
       zoneId: user.zoneId?.toString(),
       refusalReason: user.refusalReason,
       refusalType: user.refusalType,
+      points: user.points ?? 100,
     };
   }
 }

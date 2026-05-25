@@ -46,6 +46,12 @@ describe('UsersService', () => {
     isActive: user.isActive,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    phone: (user as any).phone,
+    zoneStatut: (user as any).zoneStatut,
+    zoneId: (user as any).zoneId?.toString(),
+    refusalReason: (user as any).refusalReason,
+    refusalType: (user as any).refusalType,
+    points: (user as any).points ?? 100,
   });
 
   beforeEach(async () => {

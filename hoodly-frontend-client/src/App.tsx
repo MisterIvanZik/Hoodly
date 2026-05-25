@@ -5,6 +5,11 @@ import CallbackPage from './pages/CallbackPage'
 import OnboardingPage from './pages/OnboardingPage'
 import WaitingPage from './pages/WaitingPage'
 import DashboardPage from './pages/DashboardPage'
+import ServicesPage from './pages/ServicesPage'
+import NewServicePage from './pages/NewServicePage'
+import MessagesPage from './pages/MessagesPage'
+import PointsPage from './pages/PointsPage'
+import PlanningPage from './pages/PlanningPage'
 import AppLayout from './components/shared/AppLayout'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import OnboardingGuard from './components/shared/OnboardingGuard'
@@ -50,6 +55,11 @@ function App() {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/nouveau" element={<NewServicePage />} />
+        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/points" element={<PointsPage />} />
+        <Route path="/planning" element={<PlanningPage />} />
       </Route>
     </Routes>
   )

@@ -10,6 +10,7 @@ import { IncidentsModule } from './modules/incidents/incidents.module';
 import { ZonesModule } from './modules/zones/zones.module';
 import { EventsModule } from './modules/events/events.module';
 import { ServicesModule } from './modules/services/services.module';
+import { ConversationsModule } from './modules/conversations/conversations.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PostsModule } from './modules/posts/posts.module';
 
@@ -34,6 +35,7 @@ import { PostsModule } from './modules/posts/posts.module';
     ZonesModule,
     EventsModule,
     ServicesModule,
+    ConversationsModule,
     UploadsModule,
     PostsModule,
   ],

@@ -72,6 +72,7 @@ describe('UsersController', () => {
         'john',
         UserRole.ADMIN,
         'true',
+        undefined,
       );
 
       expect(usersService.findAll).toHaveBeenCalledWith(
@@ -80,6 +81,7 @@ describe('UsersController', () => {
         'john',
         UserRole.ADMIN,
         true,
+        undefined,
       );
       expect(result).toEqual(payload);
     });
@@ -100,11 +102,13 @@ describe('UsersController', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
       );
 
       expect(usersService.findAll).toHaveBeenCalledWith(
         1,
         10,
+        undefined,
         undefined,
         undefined,
         undefined,

@@ -46,6 +46,9 @@ export class User {
   @Prop()
   phone?: string;
 
+  @Prop({ default: 100 })
+  points!: number;
+
   @Prop({ type: Object })
   location?: {
     type: string;
