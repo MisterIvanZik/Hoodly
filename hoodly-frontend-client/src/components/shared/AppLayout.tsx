@@ -12,6 +12,8 @@ import {
   Search,
   UserIcon,
   LifeBuoy,
+  MessageSquare,
+  Coins,
 } from "lucide-react"
 import { Bell } from "../animate-ui/icons/bell"
 import {
@@ -40,7 +42,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 const items = [
   { title: "Accueil", url: "/dashboard", icon: Home },
   { title: "Services", url: "/services", icon: Users },
-  { title: "Événements", url: "/events", icon: Calendar },
+  { title: "Messages", url: "/messages", icon: MessageSquare },
+  { title: "Mon Agenda", url: "/planning", icon: Calendar },
   { title: "Incidents", url: "/incidents", icon: AlertTriangle },
   { title: "Carte du quartier", url: "/map", icon: MapIcon },
 ]
@@ -68,25 +71,27 @@ export default function AppLayout() {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="px-4 gap-2">
-                  {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild tooltip={item.title}>
-                        <NavLink
-                          to={item.url}
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                              isActive
-                                ? "bg-[#e9eaf6] text-[#2c308e] font-semibold shadow-sm"
-                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                            }`
-                          }
-                        >
-                          <item.icon className="h-5 w-5" />
-                          <span>{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {(() => {
+                    return items.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink
+                            to={item.url}
+                            className={({ isActive }) =>
+                              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                                isActive
+                                  ? "bg-[#e9eaf6] text-[#2c308e] font-semibold shadow-sm"
+                                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              }`
+                            }
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))
+                  })()}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -106,7 +111,9 @@ export default function AppLayout() {
                     <p className="truncate text-sm font-semibold text-gray-900">
                       {user?.name || "Habitant"}
                     </p>
-                    <p className="truncate text-xs text-gray-500">Voir mon profil</p>
+                    <p className="truncate text-xs font-semibold text-[#2c308e] flex items-center gap-1">
+                      🪙 {user?.points ?? 100} pts
+                    </p>
                   </div>
                   <Settings className="h-4 w-4 text-gray-400" />
                 </button>
@@ -125,6 +132,12 @@ export default function AppLayout() {
                 <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
                   <UserIcon className="mr-2 h-4 w-4 text-gray-500" />
                   <span>Mon Profil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
+                  <Link to="/points" className="flex items-center w-full">
+                    <Coins className="mr-2 h-4 w-4 text-gray-500" />
+                    <span>Mon Solde</span>
+                  </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="my-2" />

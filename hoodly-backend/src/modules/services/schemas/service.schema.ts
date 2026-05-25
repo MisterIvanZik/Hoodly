@@ -51,6 +51,21 @@ export class Service {
   @Prop({ type: Types.ObjectId, ref: 'User' })
   respondeId?: Types.ObjectId;
 
+  @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
+  refusedResponders!: Types.ObjectId[];
+
+  @Prop({ type: Boolean, default: false })
+  realisationValidee!: boolean;
+
+  @Prop({ type: Boolean })
+  recurrente?: boolean;
+
+  @Prop({ type: [String] })
+  disponibilites?: string[];
+
+  @Prop()
+  datePlanification?: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Contract' })
   contractId?: Types.ObjectId;
 
@@ -62,3 +77,6 @@ export class Service {
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);
+
+ServiceSchema.index({ zoneId: 1, statut: 1, createdAt: -1 });
+ServiceSchema.index({ titre: 'text', description: 'text', categorie: 'text' });
