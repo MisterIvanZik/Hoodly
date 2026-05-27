@@ -19,6 +19,8 @@ public class IncidentDao {
     // Insère ou met à jour un incident venant du serveur,
     // sans écraser les lignes avec des changements locaux en attente.
     public void upsertFromServer(Incident incident) {
+        if (incident.getId() == null || incident.getId().isEmpty()) return;
+
         String checkSql = "SELECT sync_status FROM incidents WHERE id = ?";
         try (PreparedStatement check = connection.prepareStatement(checkSql)) {
             check.setString(1, incident.getId());

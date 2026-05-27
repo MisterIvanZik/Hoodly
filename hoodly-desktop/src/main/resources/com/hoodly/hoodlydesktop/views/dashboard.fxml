@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -20,7 +21,8 @@
 
             <Button text="Incidents" styleClass="sidebar-btn" maxWidth="Infinity"
                     onAction="#showIncidents"/>
-            <Button text="Statistiques" styleClass="sidebar-btn" maxWidth="Infinity"/>
+            <Button text="Statistiques" styleClass="sidebar-btn" maxWidth="Infinity"
+                    onAction="#showStats"/>
             <Button text="Plugins" styleClass="sidebar-btn" maxWidth="Infinity"/>
             <Button text="Paramètres" styleClass="sidebar-btn" maxWidth="Infinity"/>
 
@@ -37,42 +39,70 @@
 
     <!-- CONTENU PRINCIPAL -->
     <center>
-        <VBox styleClass="main-content" spacing="20">
-            <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+        <StackPane>
 
-            <Label fx:id="pageTitle" text="Tableau de bord" styleClass="page-title"/>
+            <!-- PANNEAU INCIDENTS -->
+            <VBox fx:id="incidentsPane" styleClass="main-content" spacing="20">
+                <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
 
-            <HBox spacing="16">
-                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <Label text="Incidents ouverts" styleClass="stat-label"/>
-                    <Label fx:id="openIncidentsCount" text="—" styleClass="stat-value"/>
-                </VBox>
-                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <Label text="En cours" styleClass="stat-label"/>
-                    <Label fx:id="inProgressCount" text="—" styleClass="stat-value"/>
-                </VBox>
-                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <Label text="Résolus" styleClass="stat-label"/>
-                    <Label fx:id="resolvedCount" text="—" styleClass="stat-value"/>
-                </VBox>
-                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <Label text="Sync en attente" styleClass="stat-label"/>
-                    <Label fx:id="syncPendingCount" text="0" styleClass="stat-value"/>
-                </VBox>
-            </HBox>
+                <Label fx:id="pageTitle" text="Tableau de bord" styleClass="page-title"/>
 
-            <Label text="Incidents récents" styleClass="section-title"/>
-            <TableView fx:id="incidentsTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="typeCol" text="Type" prefWidth="120"/>
-                    <TableColumn fx:id="descCol" text="Description" prefWidth="280"/>
-                    <TableColumn fx:id="statutCol" text="Statut" prefWidth="120"/>
-                    <TableColumn fx:id="prioriteCol" text="Priorité" prefWidth="100"/>
-                    <TableColumn fx:id="dateCol" text="Date" prefWidth="160"/>
-                </columns>
-            </TableView>
+                <HBox spacing="16">
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="Incidents ouverts" styleClass="stat-label"/>
+                        <Label fx:id="openIncidentsCount" text="—" styleClass="stat-value"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="En cours" styleClass="stat-label"/>
+                        <Label fx:id="inProgressCount" text="—" styleClass="stat-value"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="Résolus" styleClass="stat-label"/>
+                        <Label fx:id="resolvedCount" text="—" styleClass="stat-value"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="Sync en attente" styleClass="stat-label"/>
+                        <Label fx:id="syncPendingCount" text="0" styleClass="stat-value"/>
+                    </VBox>
+                </HBox>
 
-        </VBox>
+                <Label text="Incidents récents" styleClass="section-title"/>
+                <TableView fx:id="incidentsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="typeCol" text="Type" prefWidth="120"/>
+                        <TableColumn fx:id="descCol" text="Description" prefWidth="240"/>
+                        <TableColumn fx:id="statutCol" text="Statut" prefWidth="110"/>
+                        <TableColumn fx:id="prioriteCol" text="Priorité" prefWidth="90"/>
+                        <TableColumn fx:id="dateCol" text="Date" prefWidth="140"/>
+                        <TableColumn fx:id="actionsCol" text="Actions" prefWidth="180"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- PANNEAU STATISTIQUES -->
+            <VBox fx:id="statsPane" styleClass="main-content" spacing="20" visible="false" managed="false">
+                <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+
+                <Label text="Statistiques de participation" styleClass="page-title"/>
+
+                <HBox spacing="20" VBox.vgrow="ALWAYS">
+                    <PieChart fx:id="statutChart" title="Répartition par statut"
+                              HBox.hgrow="ALWAYS" maxHeight="320"/>
+                    <BarChart fx:id="typeChart" title="Incidents par type"
+                              HBox.hgrow="ALWAYS" maxHeight="320" legendVisible="false">
+                        <xAxis><CategoryAxis label="Type"/></xAxis>
+                        <yAxis><NumberAxis label="Nombre"/></yAxis>
+                    </BarChart>
+                </HBox>
+
+                <Label text="Participation des voisins" styleClass="section-title"/>
+                <BarChart fx:id="participationChart" VBox.vgrow="ALWAYS" maxHeight="280" legendVisible="false">
+                    <xAxis><CategoryAxis label="Voisin"/></xAxis>
+                    <yAxis><NumberAxis label="Incidents signalés"/></yAxis>
+                </BarChart>
+            </VBox>
+
+        </StackPane>
     </center>
 
 </BorderPane>

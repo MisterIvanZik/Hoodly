@@ -37,6 +37,12 @@ import { MongoIdValidationPipe } from '../../../shared/pipes/mongo-id-validation
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('me')
+  @Roles(UserRole.ADMIN, UserRole.MODERATOR)
+  @ApiOperation({ summary: 'Profil du modérateur connecté' })
+  @ApiResponse({ status: 200, description: 'Profil utilisateur', type: UserResponseDto })
+  async getMe(@CurrentUser() user: Record<string, unknown>): Promise<UserResponseDto> {
+    return this.usersService.getProfileByAuth0Id(user.sub as string);
   @Get('search-voisins')
   @ApiOperation({ summary: 'Rechercher des voisins' })
   @ApiQuery({
