@@ -1,6 +1,7 @@
 package com.hoodly.hoodlydesktop.controllers;
 
 import com.hoodly.hoodlydesktop.AppContext;
+import com.hoodly.hoodlydesktop.AppVersion;
 import com.hoodly.hoodlydesktop.auth.TokenStore;
 import com.hoodly.hoodlydesktop.services.ThemeManager;
 import com.hoodly.hoodlydesktop.db.IncidentDao;
@@ -27,6 +28,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.FileWriter;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
@@ -152,6 +157,8 @@ public class DashboardController {
             }
             Platform.runLater(this::loadIncidents);
         }).start();
+
+        checkForUpdates();
     }
 
     private void loadIncidents() {
@@ -467,6 +474,122 @@ public class DashboardController {
                 });
             }
         }
+    }
+
+    // ── MISES À JOUR AUTOMATIQUES ────────────────────────────────────────────
+
+    private void checkForUpdates() {
+        new Thread(() -> {
+            try {
+                ApiClient.VersionInfo info = apiClient.checkVersion();
+                if (isNewerVersion(info.version(), AppVersion.CURRENT)) {
+                    Platform.runLater(() -> showUpdateDialog(info));
+                }
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
+    private boolean isNewerVersion(String remote, String current) {
+        String[] r = remote.split("\\.");
+        String[] c = current.split("\\.");
+        for (int i = 0; i < Math.min(r.length, c.length); i++) {
+            int diff = Integer.parseInt(r[i]) - Integer.parseInt(c[i]);
+            if (diff != 0) return diff > 0;
+        }
+        return r.length > c.length;
+    }
+
+    private void showUpdateDialog(ApiClient.VersionInfo info) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Mise à jour disponible");
+        alert.setHeaderText("Version " + info.version() + " disponible (actuelle : " + AppVersion.CURRENT + ")");
+        alert.setContentText("Voulez-vous télécharger et installer la mise à jour ?");
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) downloadAndUpdate(info.downloadUrl());
+        });
+    }
+
+    private void downloadAndUpdate(String downloadUrl) {
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("Mise à jour");
+        progress.setHeaderText("Téléchargement en cours...");
+        progress.setContentText("Veuillez patienter.");
+        progress.show();
+
+        new Thread(() -> {
+            try {
+                Path tempJar = Paths.get(System.getProperty("java.io.tmpdir"), "hoodly-update.jar");
+                apiClient.downloadFile(downloadUrl, tempJar);
+
+                URI location = DashboardController.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+                Path currentJar = Paths.get(location);
+                boolean isJar = currentJar.toString().endsWith(".jar");
+                String java = ProcessHandle.current().info().command().orElse("java");
+
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    Path script = Paths.get(System.getProperty("java.io.tmpdir"), "hoodly_update.bat");
+                    String content = "@echo off\r\ntimeout /t 2 /nobreak > nul\r\n"
+                            + (isJar ? "copy /y \"" + tempJar + "\" \"" + currentJar + "\"\r\n" : "")
+                            + "start \"\" \"" + java + "\" -jar \"" + (isJar ? currentJar : tempJar) + "\"\r\n";
+                    Files.writeString(script, content);
+                    Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start", "/min", script.toString()});
+                } else {
+                    Path script = Paths.get(System.getProperty("java.io.tmpdir"), "hoodly_update.sh");
+                    String content = "#!/bin/bash\nsleep 2\n"
+                            + (isJar ? "cp \"" + tempJar + "\" \"" + currentJar + "\"\n" : "")
+                            + "\"" + java + "\" -jar \"" + (isJar ? currentJar : tempJar) + "\" &\n";
+                    Files.writeString(script, content);
+                    script.toFile().setExecutable(true);
+                    Runtime.getRuntime().exec(new String[]{"bash", script.toString()});
+                }
+
+                Platform.runLater(() -> { progress.close(); Platform.exit(); });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    progress.close();
+                    showAlert("Erreur", "Mise à jour impossible : " + e.getMessage());
+                });
+            }
+        }).start();
+    }
+
+    @FXML
+    private void handleUninstall() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Désinstaller Hoodly");
+        confirm.setHeaderText("Êtes-vous sûr de vouloir désinstaller l'application ?");
+        confirm.setContentText("Toutes les données locales et le fichier .jar seront supprimés définitivement.");
+        confirm.showAndWait().ifPresent(response -> {
+            if (response != ButtonType.OK) return;
+            try {
+                Path dataDir = Paths.get(System.getProperty("user.home"), ".hoodly");
+                URI location = DashboardController.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+                Path jarPath = Paths.get(location);
+                boolean isJar = jarPath.toString().endsWith(".jar");
+
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    Path script = Paths.get(System.getProperty("java.io.tmpdir"), "hoodly_uninstall.bat");
+                    String content = "@echo off\r\ntimeout /t 2 /nobreak > nul\r\n"
+                            + (isJar ? "del /f \"" + jarPath + "\"\r\n" : "")
+                            + "rmdir /s /q \"" + dataDir + "\"\r\n";
+                    Files.writeString(script, content);
+                    Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start", "/min", script.toString()});
+                } else {
+                    Path script = Paths.get(System.getProperty("java.io.tmpdir"), "hoodly_uninstall.sh");
+                    String content = "#!/bin/bash\nsleep 2\n"
+                            + (isJar ? "rm -f \"" + jarPath + "\"\n" : "")
+                            + "rm -rf \"" + dataDir + "\"\n";
+                    Files.writeString(script, content);
+                    script.toFile().setExecutable(true);
+                    Runtime.getRuntime().exec(new String[]{"bash", script.toString()});
+                }
+                Platform.exit();
+            } catch (Exception e) {
+                showAlert("Erreur", "Désinstallation impossible : " + e.getMessage());
+            }
+        });
     }
 
     @FXML

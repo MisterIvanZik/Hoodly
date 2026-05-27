@@ -14,6 +14,7 @@ import { ConversationsModule } from './modules/conversations/conversations.modul
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { VersionModule } from './modules/version/version.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     UploadsModule,
     PostsModule,
     TransactionsModule,
+    VersionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

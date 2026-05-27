@@ -141,6 +141,15 @@
 
                 <Button text="Appliquer" styleClass="btn-apply" onAction="#applySettings"
                         prefWidth="160" prefHeight="40"/>
+
+                <VBox styleClass="settings-card" spacing="12">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="Désinstaller l'application" styleClass="settings-section-title"/>
+                    <Label text="Supprime toutes les données locales et le fichier .jar, puis ferme l'application." wrapText="true" styleClass="stat-label"/>
+                    <Button text="Désinstaller" styleClass="btn-danger" onAction="#handleUninstall"
+                            prefWidth="160" prefHeight="40"/>
+                </VBox>
+
             </VBox>
 
             <!-- PANNEAU PLUGINS -->
