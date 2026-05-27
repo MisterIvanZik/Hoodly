@@ -50,4 +50,7 @@ export class UserResponseDto {
     enum: ['zone', 'membership'],
   })
   refusalType?: 'zone' | 'membership';
+
+  @ApiPropertyOptional({ description: 'Solde de points' })
+  points?: number;
 }

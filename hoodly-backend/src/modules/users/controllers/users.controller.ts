@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
@@ -40,6 +43,33 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Profil utilisateur', type: UserResponseDto })
   async getMe(@CurrentUser() user: Record<string, unknown>): Promise<UserResponseDto> {
     return this.usersService.getProfileByAuth0Id(user.sub as string);
+  @Get('search-voisins')
+  @ApiOperation({ summary: 'Rechercher des voisins' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Recherche par nom/email',
+  })
+  @ApiQuery({
+    name: 'global',
+    required: false,
+    description: 'Recherche globale (true/false)',
+  })
+  async searchVoisins(
+    @CurrentUser() user: any,
+    @Query('search') search?: string,
+    @Query('global') global?: string,
+  ) {
+    const callerId = user.userId || user.id;
+    const callerProfile = await this.usersService.findById(callerId);
+    const callerZoneId = callerProfile?.zoneId?.toString();
+
+    return this.usersService.findVoisins(
+      callerId,
+      callerZoneId,
+      search,
+      global === 'true',
+    );
   }
 
   @Get()

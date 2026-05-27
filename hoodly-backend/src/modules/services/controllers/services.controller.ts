@@ -120,4 +120,71 @@ export class ServicesController {
   ) {
     return this.servicesService.delete(id, user.userId, user.role);
   }
+
+  @Patch(':id/accepter')
+  @ApiOperation({ summary: 'Accepter de répondre à un service' })
+  @ApiParam({ name: 'id', description: 'ID MongoDB' })
+  @ApiResponse({ status: 200, description: 'Service accepté' })
+  async accepter(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() body: { responderId?: string },
+    @CurrentUser() user: { userId: string },
+  ) {
+    const responderId = body?.responderId || user.userId;
+    return this.servicesService.accepter(id, responderId);
+  }
+
+  @Patch(':id/refuser')
+  @ApiOperation({ summary: 'Refuser un candidat pour un service' })
+  @ApiParam({ name: 'id', description: 'ID MongoDB' })
+  @ApiResponse({ status: 200, description: 'Candidat refusé' })
+  async refuser(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() body: { responderId: string },
+  ) {
+    return this.servicesService.refuser(id, body.responderId);
+  }
+
+  @Patch(':id/demarrer')
+  @ApiOperation({ summary: "Démarrer la réalisation d'un service" })
+  @ApiParam({ name: 'id', description: 'ID MongoDB' })
+  @ApiResponse({ status: 200, description: 'Service démarré' })
+  async demarrer(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() body: { conversationId?: string },
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.servicesService.demarrer(id, user.userId, body?.conversationId);
+  }
+
+  @Patch(':id/terminer')
+  @ApiOperation({
+    summary: "Marquer un service comme accompli par l'intervenant",
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB' })
+  @ApiResponse({ status: 200, description: 'Service marqué comme accompli' })
+  async terminer(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() body: { conversationId?: string },
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.servicesService.terminer(id, user.userId, body?.conversationId);
+  }
+
+  @Patch(':id/valider')
+  @ApiOperation({
+    summary: 'Valider la réalisation finale du service par le créateur',
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB' })
+  @ApiResponse({
+    status: 200,
+    description: 'Réalisation du service validée et clôturée',
+  })
+  async valider(
+    @Param('id', MongoIdValidationPipe) id: string,
+    @Body() body: { conversationId?: string },
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.servicesService.valider(id, user.userId, body?.conversationId);
+  }
 }

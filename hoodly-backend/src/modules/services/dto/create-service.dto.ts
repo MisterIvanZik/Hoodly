@@ -8,6 +8,7 @@ import {
   IsMongoId,
   Min,
   ValidateIf,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ServiceType, ServiceStatus } from '../schemas/service.schema';
@@ -62,4 +63,22 @@ export class CreateServiceDto {
   @IsOptional()
   @IsString()
   photoUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Service récurrent ou ponctuel (offres)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  recurrente?: boolean;
+
+  @ApiPropertyOptional({ description: 'Liste des disponibilités (offres)' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  disponibilites?: string[];
+
+  @ApiPropertyOptional({ description: 'Date de planification (demandes)' })
+  @IsOptional()
+  @IsString()
+  datePlanification?: string;
 }
