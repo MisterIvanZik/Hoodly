@@ -25,9 +25,18 @@ public class ApiClient {
         this.incidentDao = incidentDao;
     }
 
-    public List<Incident> getIncidents() {
+    public String fetchZoneId() throws Exception {
+        Request request = authorizedRequest("/api/users/me").get().build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new Exception("HTTP " + response.code());
+            return mapper.readTree(response.body().string()).path("zoneId").asText(null);
+        }
+    }
+
+    public List<Incident> getIncidents(String zoneId) {
         try {
-            Request request = authorizedRequest("/api/incidents").get().build();
+            String url = zoneId != null ? "/api/incidents?zoneId=" + zoneId : "/api/incidents";
+            Request request = authorizedRequest(url).get().build();
             try (Response response = httpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new Exception("HTTP " + response.code());
                 String body = response.body().string();

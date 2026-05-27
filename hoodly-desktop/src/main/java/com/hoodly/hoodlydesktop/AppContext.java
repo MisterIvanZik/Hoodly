@@ -17,6 +17,7 @@ public class AppContext {
     private ApiClient apiClient;
     private NetworkMonitor networkMonitor;
     private SyncService syncService;
+    private String zoneId;
 
     private AppContext() {}
 
@@ -44,4 +45,7 @@ public class AppContext {
 
     public SyncService getSyncService() { return syncService; }
     public void setSyncService(SyncService syncService) { this.syncService = syncService; }
+
+    public String getZoneId() { return zoneId; }
+    public void setZoneId(String zoneId) { this.zoneId = zoneId; }
 }
