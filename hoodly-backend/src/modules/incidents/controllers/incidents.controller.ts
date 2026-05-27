@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -9,6 +9,7 @@ import { IncidentsService } from '../services/incidents.service';
 import { Incident } from '../schemas/incident.schema';
 import { JwtGuard } from '../../../core/auth/guards/jwt.guard';
 import { CreateIncidentDto } from '../dto/create-incident.dto';
+import { UpdateIncidentStatutDto } from '../dto/update-incident-statut.dto';
 
 @ApiTags('Incidents')
 @ApiBearerAuth()
@@ -20,8 +21,8 @@ export class IncidentsController {
   @Get()
   @ApiOperation({ summary: 'Lister tous les incidents' })
   @ApiResponse({ status: 200, description: 'Liste des incidents' })
-  findAll(): Promise<Incident[]> {
-    return this.incidentsService.findAll();
+  findAll(@Query('zoneId') zoneId?: string): Promise<Incident[]> {
+    return this.incidentsService.findAll(zoneId);
   }
 
   @Post()
@@ -29,5 +30,15 @@ export class IncidentsController {
   @ApiResponse({ status: 201, description: 'Incident créé' })
   create(@Body() body: CreateIncidentDto): Promise<Incident> {
     return this.incidentsService.create(body);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Mettre à jour le statut d\'un incident' })
+  @ApiResponse({ status: 200, description: 'Incident mis à jour' })
+  updateStatut(
+    @Param('id') id: string,
+    @Body() body: UpdateIncidentStatutDto,
+  ): Promise<Incident> {
+    return this.incidentsService.updateStatut(id, body);
   }
 }

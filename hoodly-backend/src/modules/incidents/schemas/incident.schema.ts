@@ -57,3 +57,11 @@ export class Incident {
 }
 
 export const IncidentSchema = SchemaFactory.createForClass(Incident);
+
+IncidentSchema.set('toJSON', {
+  virtuals: false,
+  transform: (_doc, ret) => {
+    ret._id = ret._id?.toString();
+    return ret;
+  },
+});
