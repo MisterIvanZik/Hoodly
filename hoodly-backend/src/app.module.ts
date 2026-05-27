@@ -14,6 +14,9 @@ import { ConversationsModule } from './modules/conversations/conversations.modul
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { VotesModule } from './modules/votes/votes.module';
+import { ContractsModule } from './modules/contracts/contracts.module';
+import { RgpdModule } from './modules/rgpd/rgpd.module';
 import { VersionModule } from './modules/version/version.module';
 
 @Module({
@@ -41,9 +44,13 @@ import { VersionModule } from './modules/version/version.module';
     UploadsModule,
     PostsModule,
     TransactionsModule,
+    VotesModule,
+    ContractsModule,
+    RgpdModule,
     VersionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
