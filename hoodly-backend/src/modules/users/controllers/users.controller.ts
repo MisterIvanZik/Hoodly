@@ -43,6 +43,8 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Profil utilisateur', type: UserResponseDto })
   async getMe(@CurrentUser() user: Record<string, unknown>): Promise<UserResponseDto> {
     return this.usersService.getProfileByAuth0Id(user.sub as string);
+  }
+
   @Get('search-voisins')
   @ApiOperation({ summary: 'Rechercher des voisins' })
   @ApiQuery({
