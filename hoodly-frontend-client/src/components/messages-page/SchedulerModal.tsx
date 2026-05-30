@@ -236,7 +236,7 @@ export function SchedulerModal({
             📅 Planifier un rendez-vous
           </h3>
           <p className="text-xs text-gray-400 mt-1 font-light leading-relaxed">
-            Sélectionnez un créneau d'une heure. Woodly s'assure du respect des disponibilités et des conflits de planning.
+            Sélectionnez un créneau d'une heure. Hoodly s'assure du respect des disponibilités et des conflits de planning.
           </p>
         </div>
 

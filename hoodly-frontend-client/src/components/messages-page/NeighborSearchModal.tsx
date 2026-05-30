@@ -81,7 +81,7 @@ export function NeighborSearchModal({
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-[#2c308e]" />
               <span className="text-xs font-semibold text-gray-700 select-none">
-                Recherche à l'échelle de Woodly
+                Recherche à l'échelle de Hoodly
               </span>
             </div>
             <input
