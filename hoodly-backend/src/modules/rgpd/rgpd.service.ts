@@ -72,20 +72,16 @@ export class RgpdService {
   async anonymizeUserData(userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
-    // Verify user exists first
     const profile = await this.userModel.findById(userId).exec();
     if (!profile) {
       throw new NotFoundException('Utilisateur introuvable');
     }
 
-    // 1. Cascade delete Posts and Comments (sensitive personal content)
     await this.postModel.deleteMany({ author: userObjectId }).exec();
     await this.commentModel.deleteMany({ author: userObjectId }).exec();
 
-    // 2. Cascade delete Messages (sensitive communication content)
     await this.messageModel.deleteMany({ senderId: userObjectId }).exec();
 
-    // 3. Anonymize Incident Reports (keep reports for neighborhood issues but strip personal footprints)
     await this.incidentModel
       .updateMany(
         { signaledPar: userId },
@@ -97,7 +93,6 @@ export class RgpdService {
       .updateMany({ assignedTo: userObjectId }, { $set: { assignedTo: null } })
       .exec();
 
-    // 4. Anonymize Transactions (keep transaction record for accounting integrity but set IDs to null)
     await this.transactionModel
       .updateMany({ payerId: userObjectId }, { $set: { payerId: null } })
       .exec();
@@ -109,7 +104,6 @@ export class RgpdService {
       )
       .exec();
 
-    // 5. Anonymize user profile
     await this.userModel
       .findByIdAndUpdate(userId, {
         $set: {

@@ -33,6 +33,30 @@ export class UserResponseDto {
   @ApiPropertyOptional({ description: 'Téléphone' })
   phone?: string;
 
+  @ApiPropertyOptional({ description: 'Prénom' })
+  firstName?: string;
+
+  @ApiPropertyOptional({ description: 'Nom' })
+  lastName?: string;
+
+  @ApiPropertyOptional({ description: 'Date de naissance' })
+  birthDate?: string;
+
+  @ApiPropertyOptional({ description: 'Civilité' })
+  civility?: string;
+
+  @ApiPropertyOptional({ description: 'Centres d’intérêt', type: [String] })
+  interests?: string[];
+
+  @ApiPropertyOptional({ description: 'Matériel disponible' })
+  material?: string;
+
+  @ApiPropertyOptional({ description: 'Type de résident' })
+  residentType?: string;
+
+  @ApiPropertyOptional({ description: 'Langues parlées' })
+  languages?: string;
+
   @ApiPropertyOptional({
     description: 'Statut de zone',
     enum: ZoneMembershipStatus,
@@ -53,4 +77,7 @@ export class UserResponseDto {
 
   @ApiPropertyOptional({ description: 'Solde de points' })
   points?: number;
+
+  @ApiPropertyOptional({ description: 'Biographie / Description' })
+  bio?: string;
 }

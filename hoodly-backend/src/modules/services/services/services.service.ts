@@ -57,6 +57,8 @@ export class ServicesService {
     statut?: string,
     categorie?: string,
     zoneId?: string,
+    createurId?: string,
+    responderId?: string,
   ) {
     const query = this.buildSearchQuery(
       search,
@@ -64,30 +66,32 @@ export class ServicesService {
       statut,
       categorie,
       zoneId,
+      createurId,
+      responderId,
     );
     const skip = (page - 1) * limit;
 
     const [services, total] = await Promise.all([
       this.serviceModel
-        .find(query)
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 })
-        .populate('createurId', 'name email picture')
-        .populate('responderId', 'name email picture')
-        .populate('zoneId', 'nom ville')
-        .lean(),
-      this.serviceModel.countDocuments(query),
-    ]);
-
-    return {
-      services,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
+         .find(query)
+         .skip(skip)
+         .limit(limit)
+         .sort({ createdAt: -1 })
+         .populate('createurId', 'name email picture')
+         .populate('responderId', 'name email picture')
+         .populate('zoneId', 'nom ville')
+         .lean(),
+       this.serviceModel.countDocuments(query),
+     ]);
+ 
+     return {
+       services,
+       total,
+       page,
+       limit,
+       totalPages: Math.ceil(total / limit),
+     };
+   }
 
   async findById(id: string): Promise<ServiceDocument> {
     const service = await this.serviceModel
@@ -138,17 +142,21 @@ export class ServicesService {
     statut?: string,
     categorie?: string,
     zoneId?: string,
+    createurId?: string,
+    responderId?: string,
   ) {
     const query: Record<string, any> = {};
 
-    query.$and = [
-      {
+    query.$and = [];
+
+    if (!createurId && !responderId) {
+      query.$and.push({
         $or: [
           { statut: { $ne: 'termine' } },
           { statut: 'termine', recurrente: true },
         ],
-      },
-    ];
+      });
+    }
 
     if (search) {
       query.$and.push({
@@ -159,10 +167,18 @@ export class ServicesService {
         ],
       });
     }
+
     if (type) query.type = type;
     if (statut) query.statut = statut;
     if (categorie) query.categorie = categorie;
     if (zoneId) query.zoneId = zoneId;
+    if (createurId) query.createurId = new Types.ObjectId(createurId);
+    if (responderId) query.responderId = new Types.ObjectId(responderId);
+
+    if (query.$and.length === 0) {
+      delete query.$and;
+    }
+
     return query;
   }
 

@@ -57,6 +57,8 @@ export class ServicesController {
   })
   @ApiQuery({ name: 'categorie', required: false, description: 'Catégorie' })
   @ApiQuery({ name: 'zoneId', required: false, description: 'ID de la zone' })
+  @ApiQuery({ name: 'createurId', required: false, description: 'ID du créateur' })
+  @ApiQuery({ name: 'responderId', required: false, description: 'ID de l\'intervenant' })
   @ApiResponse({ status: 200, description: 'Liste des services' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   async findAll(
@@ -67,6 +69,8 @@ export class ServicesController {
     @Query('statut') statut?: string,
     @Query('categorie') categorie?: string,
     @Query('zoneId') zoneId?: string,
+    @Query('createurId') createurId?: string,
+    @Query('responderId') responderId?: string,
   ) {
     return this.servicesService.findAll(
       page ? parseInt(page) : 1,
@@ -76,6 +80,8 @@ export class ServicesController {
       statut,
       categorie,
       zoneId,
+      createurId,
+      responderId,
     );
   }
 

@@ -40,8 +40,11 @@ export class IncidentsController {
   @Get()
   @ApiOperation({ summary: 'Lister tous les incidents' })
   @ApiResponse({ status: 200, description: 'Liste des incidents' })
-  findAll(@Query('zoneId') zoneId?: string): Promise<Incident[]> {
-    return this.incidentsService.findAll(zoneId);
+  findAll(
+    @Query('zoneId') zoneId?: string,
+    @Query('signaledPar') signaledPar?: string,
+  ): Promise<Incident[]> {
+    return this.incidentsService.findAll(zoneId, signaledPar);
   }
 
   @Post()

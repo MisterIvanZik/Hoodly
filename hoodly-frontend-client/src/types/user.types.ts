@@ -7,6 +7,14 @@ export interface User {
   name?: string
   picture?: string
   phone?: string
+  firstName?: string
+  lastName?: string
+  birthDate?: string
+  civility?: string
+  interests?: string[]
+  material?: string
+  residentType?: string
+  languages?: string
   role: 'user' | 'moderator' | 'admin'
   isActive: boolean
   zoneStatut: ZoneMembershipStatus
@@ -16,4 +24,5 @@ export interface User {
   refusalReason?: string
   refusalType?: 'zone' | 'membership'
   points?: number
+  bio?: string
 }

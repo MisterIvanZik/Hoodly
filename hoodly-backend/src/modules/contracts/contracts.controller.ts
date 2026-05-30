@@ -89,10 +89,8 @@ export class ContractsController {
     @Body() signContractDto: SignContractDto,
     @Ip() reqIp: string,
   ) {
-    // Determine the IP address from the request header if behind proxy, or use request IP
     const ip = reqIp || '127.0.0.1';
 
-    // Inject the IP if not explicitly provided in the payload
     if (!signContractDto.ipAddress) {
       signContractDto.ipAddress = ip;
     }

@@ -2,24 +2,21 @@
 import { useState } from 'react'
 import { SearchBox } from '@mapbox/search-js-react'
 import { zonesApi } from '../../services/api/zone'
-import { authApi } from '../../services/api/auth'
 import type { Zone } from '../../types/zone.types'
-import { useAuthStore } from '../../stores/auth.store'
-import { useNavigate } from 'react-router-dom'
-import { ZoneMembershipStatus } from '../../types/status.enum'
+import { ArrowLeft, MapPin, PlusCircle, CheckCircle } from 'lucide-react'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
 
-function AddressStep() {
-  const navigate = useNavigate()
-  const setUser = useAuthStore((state) => state.setUser)
-  const updateUser = useAuthStore((state) => state.updateUser)
+interface AddressStepProps {
+  onNext: (data: { addressData: any; selectedZone: Zone | null; isRequestingNewZone: boolean }) => void
+  onBack: () => void
+}
 
+function AddressStep({ onNext, onBack }: AddressStepProps) {
   const [addressData, setAddressData] = useState<any>(null)
   const [nearbyZones, setNearbyZones] = useState<Zone[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleRetrieve = async (res: any) => {
@@ -41,115 +38,123 @@ function AddressStep() {
     }
   }
 
-  const handleJoinZone = async (zoneId: string) => {
-    setIsSubmitting(true)
-    try {
-      await zonesApi.intentMembership(zoneId)
-      const { data: updatedUser } = await authApi.getMe()
-      setUser(updatedUser)
-      navigate('/dashboard')
-    } catch (error) {
-      console.error('Erreur adhésion:', error)
-      setErrorMessage('Une erreur est survenue lors de la demande.')
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleSelectZone = (zone: Zone) => {
+    onNext({
+      addressData,
+      selectedZone: zone,
+      isRequestingNewZone: false
+    })
   }
 
-  const handleRequestZone = async () => {
+  const handleSelectNewZoneRequest = () => {
     if (!addressData) return
-    setIsSubmitting(true)
-    try {
-      const [lng, lat] = addressData.geometry.coordinates
-      const city = addressData.properties.context?.place?.name || addressData.properties.place_name
-      const zip = addressData.properties.context?.postcode?.name || ''
-
-      await zonesApi.createZoneRequest({
-        nomQuartier: 'Nouveau quartier',
-        ville: city,
-        codePostal: zip,
-        description: `Adresse : ${addressData.properties.full_address}`,
-        latitude: lat,
-        longitude: lng
-      })
-
-      updateUser({ zoneStatut: ZoneMembershipStatus.PENDING_ZONE })
-      navigate('/waiting')
-    } catch (error) {
-      console.error(error)
-      setErrorMessage('Erreur lors de l\'envoi de la demande.')
-    } finally {
-      setIsSubmitting(false)
-    }
+    onNext({
+      addressData,
+      selectedZone: null,
+      isRequestingNewZone: true
+    })
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-4">
+    <div className="mx-auto max-w-xl space-y-6">
+
+      <button
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#0c3383] transition-colors cursor-pointer"
+      >
+        <ArrowLeft size={14} />
+        <span>Retour aux informations personnelles</span>
+      </button>
+
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Où habitez-vous ?</h2>
-        <p className="mt-2 text-gray-600">Entrez votre adresse pour trouver votre communauté Hoodly.</p>
+        <h2 className="text-2xl font-black text-gray-900 tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          Où habitez-vous ?
+        </h2>
+        <p className="mt-1.5 text-xs text-gray-400 font-light max-w-md mx-auto leading-relaxed">
+          Entrez votre adresse de résidence pour localiser votre quartier et rejoindre la communauté.
+        </p>
       </div>
 
-      <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-        <SearchBox
-          accessToken={MAPBOX_TOKEN}
-          onRetrieve={handleRetrieve}
-          placeholder="Rechercher mon adresse..."
-          value=""
-          options={{ country: 'fr', types: 'address' }}
-        />
+      <div className="rounded-[2rem] bg-white p-6 shadow-xl shadow-slate-100/50 border border-slate-100 space-y-4">
+        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          Adresse de votre domicile
+        </label>
+        <div className="relative search-box-wrapper">
+          <SearchBox
+            accessToken={MAPBOX_TOKEN}
+            onRetrieve={handleRetrieve}
+            placeholder="Saisissez votre adresse..."
+            value=""
+            options={{ country: 'fr', types: 'address' }}
+          />
+        </div>
       </div>
 
       {isSearching && (
-        <div className="flex justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        <div className="flex flex-col items-center justify-center py-8 space-y-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0c3383] border-t-transparent"></div>
+          <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Recherche de quartiers...</span>
         </div>
       )}
 
       {hasSearched && !isSearching && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-400">
           {errorMessage && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{errorMessage}</div>
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 font-medium">{errorMessage}</div>
           )}
+
           {nearbyZones.length > 0 ? (
             <div className="space-y-4">
-              <div className="rounded-lg bg-green-50 p-4 border border-green-100">
-                <p className="text-green-800 font-medium">Bonne nouvelle ! {nearbyZones.length} quartier(s) trouvé(s).</p>
+              <div className="rounded-2xl bg-emerald-50/50 p-4 border border-emerald-100 flex items-start gap-3">
+                <CheckCircle className="text-emerald-600 shrink-0 mt-0.5" size={18} />
+                <div>
+                  <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Quartiers disponibles</h4>
+                  <p className="text-xs text-emerald-700/90 font-light mt-0.5">
+                    Bonne nouvelle ! Nous avons trouvé des quartiers Hoodly correspondants à votre secteur.
+                  </p>
+                </div>
               </div>
-              <div className="grid gap-4">
+
+              <div className="grid gap-3">
                 {nearbyZones.map((zone) => (
-                  <div key={zone.id} className="flex items-center justify-between rounded-xl border border-gray-200 p-4
-      hover:border-blue-300 transition-colors">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{zone.nom}</h4>
-                      <p className="text-sm text-gray-500">{zone.ville}</p>
+                  <div
+                    key={zone.id}
+                    className="flex items-center justify-between rounded-2xl border border-gray-150 p-4 bg-white hover:border-[#0c3383] hover:shadow-xs transition-all duration-200"
+                  >
+                    <div className="space-y-0.5">
+                      <h4 className="font-extrabold text-gray-900 text-sm leading-tight">{zone.nom}</h4>
+                      <p className="text-[11px] text-gray-400 font-light flex items-center gap-1">
+                        <MapPin size={11} className="text-gray-300" />
+                        <span>{zone.ville}</span>
+                      </p>
                     </div>
                     <button
-                      onClick={() => handleJoinZone(zone.id)}
-                      disabled={isSubmitting}
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700
-      disabled:opacity-60"
+                      onClick={() => handleSelectZone(zone)}
+                      className="rounded-xl bg-[#0c3383] hover:bg-opacity-95 text-white px-5 py-2.5 text-xs font-bold shadow-3xs cursor-pointer transition-all hover:scale-102"
                     >
-                      {isSubmitting ? 'Envoi...' : 'Rejoindre'}
+                      Sélectionner
                     </button>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-4 rounded-xl bg-blue-50 p-8 border border-blue-100">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+            <div className="text-center space-y-4 rounded-[2rem] bg-blue-50/40 p-8 border border-blue-100/60">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-3xs">
                 <span className="text-2xl">📍</span>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900">Pas encore de quartier ici</h3>
-              <p className="mt-1 text-blue-700">Soyez le premier à lancer Hoodly dans votre zone !</p>
+              <div className="space-y-1">
+                <h3 className="text-sm font-extrabold text-[#0c3383]">Pas encore de quartier dans cette zone</h3>
+                <p className="text-xs text-slate-500 font-light max-w-sm mx-auto leading-relaxed">
+                  Soyez le tout premier habitant à lancer Hoodly chez vous et invitez vos voisins à vous rejoindre !
+                </p>
+              </div>
               <button
-                onClick={handleRequestZone}
-                disabled={isSubmitting}
-                className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors
-      shadow-sm hover:bg-blue-700 disabled:opacity-60"
+                onClick={handleSelectNewZoneRequest}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0c3383] hover:bg-opacity-95 px-6 py-3.5 text-xs font-bold text-white transition-all hover:scale-102 shadow-3xs cursor-pointer"
               >
-                {isSubmitting ? 'Envoi en cours...' : 'Demander la création du quartier'}
+                <PlusCircle size={14} />
+                <span>Demander la création du quartier</span>
               </button>
             </div>
           )}

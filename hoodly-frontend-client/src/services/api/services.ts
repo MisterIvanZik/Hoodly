@@ -9,6 +9,8 @@ export interface GetServicesParams {
   statut?: string
   categorie?: string
   zoneId?: string
+  createurId?: string
+  responderId?: string
 }
 
 export const servicesApi = {

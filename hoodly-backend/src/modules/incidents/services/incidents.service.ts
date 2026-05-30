@@ -11,8 +11,10 @@ export class IncidentsService {
     @InjectModel(Incident.name) private incidentModel: Model<IncidentDocument>,
   ) {}
 
-  async findAll(zoneId?: string): Promise<Incident[]> {
-    const filter = zoneId ? { zoneId: new Types.ObjectId(zoneId) } : {};
+  async findAll(zoneId?: string, signaledPar?: string): Promise<Incident[]> {
+    const filter: any = {};
+    if (zoneId) filter.zoneId = new Types.ObjectId(zoneId);
+    if (signaledPar) filter.signaledPar = signaledPar;
     return this.incidentModel
       .find(filter)
       .lean()

@@ -46,6 +46,30 @@ export class User {
   @Prop()
   phone?: string;
 
+  @Prop()
+  firstName?: string;
+
+  @Prop()
+  lastName?: string;
+
+  @Prop()
+  birthDate?: string;
+
+  @Prop()
+  civility?: string;
+
+  @Prop({ type: [String] })
+  interests?: string[];
+
+  @Prop()
+  material?: string;
+
+  @Prop()
+  residentType?: string;
+
+  @Prop()
+  languages?: string;
+
   @Prop({ default: 100 })
   points!: number;
 
@@ -54,6 +78,9 @@ export class User {
     type: string;
     coordinates: number[];
   };
+
+  @Prop()
+  bio?: string;
 
   @Prop()
   refusalReason?: string;

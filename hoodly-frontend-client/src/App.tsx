@@ -10,6 +10,7 @@ import NewServicePage from './pages/NewServicePage'
 import MessagesPage from './pages/MessagesPage'
 import PointsPage from './pages/PointsPage'
 import PlanningPage from './pages/PlanningPage'
+import ProfilePage from './pages/ProfilePage'
 import AppLayout from './components/shared/AppLayout'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import OnboardingGuard from './components/shared/OnboardingGuard'
@@ -63,6 +64,7 @@ function App() {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/points" element={<PointsPage />} />
           <Route path="/planning" element={<PlanningPage />} />
+          <Route path="/profil" element={<ProfilePage />} />
         </Route>
       </Route>
     </Routes>
