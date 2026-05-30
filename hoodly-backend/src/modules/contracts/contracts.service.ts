@@ -45,7 +45,6 @@ export class ContractsService {
       );
     }
 
-    // Verify client and provider exist
     const [client, provider, service] = await Promise.all([
       this.usersService.findById(clientId),
       this.usersService.findById(providerId),
@@ -56,7 +55,6 @@ export class ContractsService {
     if (!provider) throw new NotFoundException('Prestataire introuvable');
     if (!service) throw new NotFoundException('Service introuvable');
 
-    // Optional points check: verify client has enough points to start
     if (client.points < pricePoints) {
       throw new BadRequestException(
         `Le client n'a pas assez de points. Requis: ${pricePoints} pts, Actuel: ${client.points} pts`,
@@ -77,7 +75,6 @@ export class ContractsService {
 
     const savedContract = await contract.save();
 
-    // Link the contract to the service
     service.contractId = savedContract._id;
     service.statut = ServiceStatus.EN_COURS;
     await service.save();
@@ -113,7 +110,6 @@ export class ContractsService {
     const ipAddress = signContractDto.ipAddress || '127.0.0.1';
     const metadata = signContractDto.signatureMetadata;
 
-    // Cryptographic hash generation
     const payloadToHash = `${contract._id}-${userId}-${contract.terms}-${contract.pricePoints}-${ipAddress}-${metadata}-${new Date().toISOString()}`;
     const hash = crypto
       .createHash('sha256')
@@ -144,7 +140,6 @@ export class ContractsService {
       };
     }
 
-    // If both parties have signed, update contract status to SIGNED
     if (contract.clientSignature.signed && contract.providerSignature.signed) {
       contract.status = ContractStatus.SIGNED;
     }
@@ -167,7 +162,6 @@ export class ContractsService {
       );
     }
 
-    // Only client or provider can initiate completion
     const isClient = contract.clientId.toString() === userId;
     const isProvider = contract.providerId.toString() === userId;
 
@@ -177,7 +171,6 @@ export class ContractsService {
       );
     }
 
-    // Perform the transfer of points using TransactionsService
     await this.transactionsService.transferPoints(
       contract.clientId.toString(),
       contract.providerId.toString(),
@@ -186,11 +179,9 @@ export class ContractsService {
       contract.serviceId.toString(),
     );
 
-    // Update contract status
     contract.status = ContractStatus.COMPLETED;
     const saved = await contract.save();
 
-    // Update service status
     await this.serviceModel.findByIdAndUpdate(contract.serviceId, {
       statut: ServiceStatus.TERMINE,
       realisationValidee: true,
@@ -214,7 +205,6 @@ export class ContractsService {
       );
     }
 
-    // Only parties involved can cancel
     const isClient = contract.clientId.toString() === userId;
     const isProvider = contract.providerId.toString() === userId;
 
@@ -227,7 +217,6 @@ export class ContractsService {
     contract.status = ContractStatus.CANCELLED;
     const saved = await contract.save();
 
-    // Revert service status
     await this.serviceModel.findByIdAndUpdate(contract.serviceId, {
       statut: ServiceStatus.ANNULE,
     });
@@ -247,7 +236,6 @@ export class ContractsService {
       throw new NotFoundException('Contrat introuvable');
     }
 
-    // Only client or provider can view contract details
     const isClient = contract.clientId._id.toString() === userId;
     const isProvider = contract.providerId._id.toString() === userId;
 

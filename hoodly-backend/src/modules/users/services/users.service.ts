@@ -56,15 +56,17 @@ export class UsersService {
           console.warn('Could not save welcome transaction');
         }
       } else {
+        const updatePayload: any = { email: payload.email };
+        if (!user!.name && payload.name) {
+          updatePayload.name = payload.name;
+        }
+        if (!user!.picture && payload.picture) {
+          updatePayload.picture = payload.picture;
+        }
+
         user = await this.userModel.findOneAndUpdate(
           { auth0Id },
-          {
-            $set: {
-              email: payload.email,
-              ...(payload.name && { name: payload.name }),
-              ...(payload.picture && { picture: payload.picture }),
-            },
-          },
+          { $set: updatePayload },
           { returnDocument: 'after' },
         );
       }
@@ -157,12 +159,42 @@ export class UsersService {
     auth0Id: string,
     updates: UpdateProfileDto,
   ): Promise<UserResponseDto> {
+    const oldUser = await this.userModel.findOne({ auth0Id });
+    if (!oldUser) throw new NotFoundException('Utilisateur introuvable');
+    
+    const oldPoints = oldUser.points ?? 100;
+
     const user = await this.userModel.findOneAndUpdate(
       { auth0Id },
       { $set: updates },
       { returnDocument: 'after' },
     );
     if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    if (updates.points !== undefined && updates.points !== oldPoints) {
+      const diff = updates.points - oldPoints;
+      try {
+        let desc = 'Ajustement de points';
+        if (diff === 20) {
+          desc = 'Mission accomplie : Discussion active';
+        } else if (diff === 30) {
+          desc = 'Mission accomplie : Premier pas sur le feed';
+        } else if (diff === 50) {
+          desc = 'Mission accomplie : Présentation au quartier';
+        }
+        
+        await this.transactionsService.create(
+          null,
+          String(user._id),
+          Math.abs(diff),
+          TransactionType.ADMIN_ADJUSTMENT,
+          desc,
+        );
+      } catch (err) {
+        console.warn('Could not record transaction for points change:', err);
+      }
+    }
+
     return this.toDto(user);
   }
 
@@ -210,11 +242,20 @@ export class UsersService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       phone: user.phone,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      birthDate: user.birthDate,
+      civility: user.civility,
+      interests: user.interests,
+      material: user.material,
+      residentType: user.residentType,
+      languages: user.languages,
       zoneStatut: user.zoneStatut,
       zoneId: user.zoneId?.toString(),
       refusalReason: user.refusalReason,
       refusalType: user.refusalType,
       points: user.points ?? 100,
+      bio: user.bio,
     };
   }
 }

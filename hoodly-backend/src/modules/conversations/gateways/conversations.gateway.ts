@@ -91,7 +91,6 @@ export class ConversationsGateway
     });
   }
 
-  // Map active connections: userId -> Set of socket ids
   private static activeConnections = new Map<string, Set<string>>();
 
   async handleConnection(client: Socket) {

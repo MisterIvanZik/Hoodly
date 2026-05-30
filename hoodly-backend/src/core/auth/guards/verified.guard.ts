@@ -12,7 +12,6 @@ export class VerifiedGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    // By-pass check for admin/moderator roles
     if (user?.role === 'admin' || user?.role === 'moderator') {
       return true;
     }

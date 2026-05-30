@@ -4,10 +4,10 @@ import { HydratedDocument, Types } from 'mongoose';
 export type ContractDocument = HydratedDocument<Contract>;
 
 export enum ContractStatus {
-  PENDING = 'pending', // waiting for both parties to sign
-  SIGNED = 'signed', // signed by both, active/in-progress
-  COMPLETED = 'completed', // completed, points transferred
-  CANCELLED = 'cancelled', // cancelled
+  PENDING = 'pending',
+  SIGNED = 'signed',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 @Schema()
@@ -22,10 +22,10 @@ export class SignatureDetail {
   ipAddress?: string;
 
   @Prop()
-  signatureMetadata?: string; // browser user-agent, details
+  signatureMetadata?: string;
 
   @Prop()
-  hash?: string; // SHA-256 hash of the contract content + signer details
+  hash?: string;
 }
 
 const SignatureDetailSchema = SchemaFactory.createForClass(SignatureDetail);

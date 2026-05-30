@@ -66,7 +66,6 @@ export class VotesService {
       throw new NotFoundException('Vote introuvable');
     }
 
-    // Check expiration on the fly
     if (vote.status === VoteStatus.ACTIVE && new Date() > vote.expirationDate) {
       vote.status = VoteStatus.CLOSED;
       await vote.save();
@@ -101,7 +100,6 @@ export class VotesService {
       );
     }
 
-    // Prevent double voting
     const alreadyVoted = vote.votedUsers.some(
       (v) => v.userId.toString() === userId,
     );
@@ -109,7 +107,6 @@ export class VotesService {
       throw new BadRequestException('Vous avez déjà voté pour ce scrutin');
     }
 
-    // Verify option is valid
     if (!vote.options.includes(option)) {
       throw new BadRequestException('Option de vote invalide');
     }
@@ -130,7 +127,6 @@ export class VotesService {
   ): Promise<{ message: string }> {
     const vote = await this.findOne(voteId);
 
-    // Only creator or an admin/moderator can delete a vote
     if (
       vote.creatorId.toString() !== userId &&
       userRole !== 'admin' &&
@@ -152,7 +148,6 @@ export class VotesService {
   ): Promise<VoteDocument> {
     const vote = await this.findOne(voteId);
 
-    // Only creator or admin/mod can close early
     if (
       vote.creatorId.toString() !== userId &&
       userRole !== 'admin' &&

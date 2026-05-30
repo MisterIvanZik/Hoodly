@@ -3,6 +3,11 @@ import { useAuth0 } from "@auth0/auth0-react"
 import { useUser } from "../../hooks/useUser"
 import { ZoneMembershipStatus } from "../../types/status.enum"
 import { toast } from "sonner"
+import { useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { conversationsApi } from "../../services/api/conversations"
+import { postsApi } from "../../services/api/posts"
+import { usersApi } from "../../services/api/user"
 import {
   Home,
   Users,
@@ -46,14 +51,80 @@ const items = [
   { title: "Services", url: "/services", icon: Users },
   { title: "Messages", url: "/messages", icon: MessageSquare },
   { title: "Mon Agenda", url: "/planning", icon: Calendar },
+  { title: "Profil", url: "/profil", icon: UserIcon },
   { title: "Incidents", url: "/incidents", icon: AlertTriangle },
   { title: "Carte du quartier", url: "/map", icon: MapIcon },
 ]
 
 export default function AppLayout() {
   const { logout } = useAuth0()
-  const { user } = useUser()
+  const { user, refreshProfile } = useUser()
+  const queryClient = useQueryClient()
   const isVerified = user?.zoneStatut === ZoneMembershipStatus.ACTIVE
+
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['global-conversations'],
+    queryFn: async () => {
+      const { data } = await conversationsApi.getAll()
+      return data
+    },
+    enabled: !!user?.id
+  })
+
+  const { data: feedData } = useQuery({
+    queryKey: ['global-feed', user?.zoneId],
+    queryFn: async () => {
+      if (!user?.zoneId) return { data: [], nextCursor: null }
+      const { data } = await postsApi.getFeed(user.zoneId, undefined, 100)
+      return data
+    },
+    enabled: !!user?.zoneId
+  })
+
+  const hasMessages = conversations.length > 0
+  const hasPosts = (feedData?.data || []).some(
+    (post) => post.author === user?.id || post.author === user?.auth0Id
+  )
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const checkAndAwardMissions = async () => {
+      let pointsToAdd = 0
+      let pointsUpdated = false
+      const currentPoints = user.points ?? 100
+
+      const msgClaimKey = `hoodly-claimed-msg-${user.id}`
+      if (hasMessages && !localStorage.getItem(msgClaimKey)) {
+        pointsToAdd += 20
+        localStorage.setItem(msgClaimKey, 'true')
+        pointsUpdated = true
+        toast.success("🎉 Mission accomplie : Premier message envoyé ! +20 points (2,00 €)", { duration: 6000 })
+      }
+
+      const postClaimKey = `hoodly-claimed-post-${user.id}`
+      if (hasPosts && !localStorage.getItem(postClaimKey)) {
+        pointsToAdd += 30
+        localStorage.setItem(postClaimKey, 'true')
+        pointsUpdated = true
+        toast.success("🎉 Mission accomplie : Premier post partagé ! +30 points (3,00 €)", { duration: 6000 })
+      }
+
+      if (pointsUpdated && pointsToAdd > 0) {
+        try {
+          await usersApi.updateProfile({ points: currentPoints + pointsToAdd })
+          if (refreshProfile) refreshProfile()
+          queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+          queryClient.invalidateQueries({ queryKey: ['global-conversations'] })
+          queryClient.invalidateQueries({ queryKey: ['global-feed'] })
+        } catch (err) {
+          console.error("Failed to persist global points update", err)
+        }
+      }
+    }
+
+    checkAndAwardMissions()
+  }, [hasMessages, hasPosts, user?.id, queryClient, refreshProfile])
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-[#f5f3ed]">
@@ -93,6 +164,8 @@ export default function AppLayout() {
                                     msg = "Vérifiez votre compte pour pouvoir accéder aux services de quartier."
                                   } else if (item.url === "/planning") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à l'agenda de quartier."
+                                  } else if (item.url === "/profil") {
+                                    msg = "Vérifiez votre compte pour pouvoir accéder à votre profil complet."
                                   } else if (item.url === "/incidents") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder au signalement d'incidents."
                                   } else if (item.url === "/map") {
@@ -129,79 +202,13 @@ export default function AppLayout() {
           </SidebarContent>
 
           <SidebarFooter className="p-4 border-t border-gray-100">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex w-full items-center gap-3 rounded-xl p-3 hover:bg-gray-100 transition-colors text-left outline-none">
-                  <Avatar className="h-10 w-10 border border-gray-200">
-                    <AvatarImage src={user?.picture} alt={user?.name || "Avatar"} />
-                    <AvatarFallback className="bg-[#2c308e] text-white">
-                      {user?.name?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="truncate text-sm font-semibold text-gray-900">
-                      {user?.name || "Habitant"}
-                    </p>
-                    {isVerified ? (
-                      <p className="truncate text-xs font-semibold text-[#2c308e] flex items-center gap-1">
-                        🪙 {user?.points ?? 100} pts
-                      </p>
-                    ) : (
-                      <p className="truncate text-[10px] font-bold text-amber-600 flex items-center gap-1">
-                        ⚠️ Compte non vérifié
-                      </p>
-                    )}
-                  </div>
-                  <Settings className="h-4 w-4 text-gray-400" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 rounded-xl p-2">
-                <div className="mb-2 px-2 py-1.5">
-                  <p className="text-sm font-bold text-gray-900">{user?.name || "Habitant"}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                </div>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider mt-2">
-                  Compte
-                </DropdownMenuLabel>
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
-                  <UserIcon className="mr-2 h-4 w-4 text-gray-500" />
-                  <span>Mon Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
-                  <Link to="/points" className="flex items-center w-full">
-                    <Coins className="mr-2 h-4 w-4 text-gray-500" />
-                    <span>Mon Solde</span>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator className="my-2" />
-
-                <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider">
-                  Application
-                </DropdownMenuLabel>
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
-                  <Settings className="mr-2 h-4 w-4 text-gray-500" />
-                  <span>Paramètres</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
-                  <LifeBuoy className="mr-2 h-4 w-4 text-gray-500" />
-                  <span>Aide & Support</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator className="my-2" />
-
-                <DropdownMenuItem
-                  className="cursor-pointer text-red-600 rounded-lg py-2 focus:text-red-600 focus:bg-red-50"
-                  onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Se déconnecter</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              className="flex w-full items-center gap-3 rounded-xl p-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all text-left font-bold text-xs cursor-pointer active:scale-98"
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span>Se déconnecter</span>
+            </button>
           </SidebarFooter>
         </Sidebar>
 
@@ -219,9 +226,84 @@ export default function AppLayout() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="relative rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
+              <button className="relative rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 shrink-0">
                 <Bell animateOnHover className="h-5 w-5" />
               </button>
+
+              <div className="h-6 w-[1px] bg-gray-200" />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2.5 rounded-full p-1 hover:bg-gray-100 transition-colors outline-none shrink-0 cursor-pointer">
+                    <Avatar className="h-8 w-8 border border-gray-200">
+                      <AvatarImage src={user?.picture} alt={user?.name || "Avatar"} />
+                      <AvatarFallback className="bg-[#2c308e] text-white text-xs font-bold">
+                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden sm:inline text-xs font-bold text-gray-700 select-none pr-1">
+                      {user?.name || "Habitant"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 rounded-xl p-2 z-40 mt-1">
+                  <div className="mb-2 px-2 py-1.5">
+                    <p className="text-sm font-bold text-gray-900">{user?.name || "Habitant"}</p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    {isVerified ? (
+                      <p className="text-xs font-bold text-[#2c308e] mt-1.5 flex items-center gap-1">
+                        🪙 {user?.points ?? 100} points
+                      </p>
+                    ) : (
+                      <p className="text-[10px] font-bold text-amber-600 mt-1.5 flex items-center gap-1">
+                        ⚠️ Compte non vérifié
+                      </p>
+                    )}
+                  </div>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuLabel className="text-xs text-gray-400 uppercase tracking-wider mt-2 px-2">
+                    Compte
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
+                    <Link to="/profil" className="flex items-center w-full">
+                      <UserIcon className="mr-2 h-4 w-4 text-gray-500" />
+                      <span>Mon Profil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
+                    <Link to="/points" className="flex items-center w-full">
+                      <Coins className="mr-2 h-4 w-4 text-gray-500" />
+                      <span>Mon Solde</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-2" />
+
+                  <DropdownMenuLabel className="text-xs text-gray-400 uppercase tracking-wider px-2">
+                    Application
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
+                    <Settings className="mr-2 h-4 w-4 text-gray-500" />
+                    <span>Paramètres</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2">
+                    <LifeBuoy className="mr-2 h-4 w-4 text-gray-500" />
+                    <span>Aide & Support</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-2" />
+
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-600 rounded-lg py-2 focus:text-red-600 focus:bg-red-50"
+                    onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Se déconnecter</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 
