@@ -1,0 +1,50 @@
+services:
+
+  backend:
+    build:
+      context: ./hoodly-backend
+      dockerfile: Dockerfile
+    container_name: hoodly-backend
+    environment:
+      NODE_ENV: production
+      DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY_BACKEND}
+      MONGODB_URI: mongodb://host.docker.internal:27017/hoodly
+      CORS_ORIGIN: http://localhost:5173,http://localhost:5174
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 3000 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend-client:
+    build:
+      context: ./hoodly-frontend-client
+      dockerfile: Dockerfile
+      args:
+        DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY_CLIENT}
+    container_name: hoodly-frontend-client
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend-admin:
+    build:
+      context: ./hoodly-frontend-admin
+      dockerfile: Dockerfile
+      args:
+        DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY_ADMIN}
+    container_name: hoodly-frontend-admin
+    ports:
+      - "5174:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
