@@ -26,6 +26,11 @@ services:
       dockerfile: Dockerfile
       args:
         DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY_CLIENT}
+        VITE_API_URL: ${VITE_API_URL_CLIENT}
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN_CLIENT}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID_CLIENT}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE_CLIENT}
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN_CLIENT}
     container_name: hoodly-frontend-client
     ports:
       - "5173:80"
@@ -40,6 +45,11 @@ services:
       dockerfile: Dockerfile
       args:
         DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY_ADMIN}
+        VITE_API_URL: ${VITE_API_URL_ADMIN}
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN_ADMIN}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID_ADMIN}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE_ADMIN}
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN_ADMIN}
     container_name: hoodly-frontend-admin
     ports:
       - "5174:80"
