@@ -10,12 +10,14 @@ import {
 import { Message, MessageSchema } from './schemas/message.schema';
 import { ServicesModule } from '../services/services.module';
 import { UsersModule } from '../users/users.module';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Conversation.name, schema: ConversationSchema },
       { name: Message.name, schema: MessageSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     forwardRef(() => ServicesModule),
     UsersModule,

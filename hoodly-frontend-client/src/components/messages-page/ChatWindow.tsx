@@ -7,7 +7,10 @@ import {
   HeartHandshake,
   MessageSquare,
   Pencil,
-  Trash2
+  Trash2,
+  PartyPopper,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar'
@@ -57,6 +60,7 @@ export function ChatWindow({
   const [showScheduler, setShowScheduler] = useState(false)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
+  const [showParticipants, setShowParticipants] = useState(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -85,7 +89,8 @@ export function ChatWindow({
     )
   }
 
-  const otherParticipant = activeConv.participants.find((p: any) => p.email !== currentUser?.email)
+  const isGroup = !!activeConv.eventId
+  const otherParticipant = isGroup ? null : activeConv.participants.find((p: any) => p.email !== currentUser?.email)
   const isOnline = otherParticipant ? onlineUsers.has(otherParticipant.id || otherParticipant._id || '') : false
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -104,7 +109,7 @@ export function ChatWindow({
     }
   }
 
-  const handleSend = async (e?: React.FormEvent) => {
+  const handleSend = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault()
     if (!newMessage.trim() || isSending || !activeId) return
 
@@ -284,23 +289,64 @@ export function ChatWindow({
     <div className="flex-1 flex flex-col h-full bg-[#fcfbfa]">
       <div className="p-4 border-b border-gray-100 bg-[#fefefa] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 border border-gray-100 shrink-0">
-            <AvatarImage src={otherParticipant?.picture} alt={otherParticipant?.name} />
-            <AvatarFallback className="bg-[#2c308e] text-white font-bold text-sm">
-              {otherParticipant?.name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          {isGroup ? (
+            <div className="h-10 w-10 rounded-full bg-[#e9eaf6] border border-[#2c308e]/20 flex items-center justify-center shrink-0">
+              <PartyPopper className="h-5 w-5 text-[#2c308e]" />
+            </div>
+          ) : (
+            <Avatar className="h-10 w-10 border border-gray-100 shrink-0">
+              <AvatarImage src={otherParticipant?.picture} alt={otherParticipant?.name} />
+              <AvatarFallback className="bg-[#2c308e] text-white font-bold text-sm">
+                {otherParticipant?.name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          )}
           <div>
             <h3 className="text-sm font-bold text-gray-900 leading-snug">
-              {otherParticipant?.name || 'Voisin'}
+              {isGroup ? (activeConv.nom || 'Événement') : (otherParticipant?.name || 'Voisin')}
             </h3>
-            <p className={`text-[10px] flex items-center gap-1.5 font-semibold ${isOnline ? 'text-emerald-600' : 'text-gray-400'}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`} />
-              {isOnline ? 'En ligne' : 'Hors ligne'}
-            </p>
+            {isGroup ? (
+              <button
+                type="button"
+                onClick={() => setShowParticipants((v) => !v)}
+                className="flex items-center gap-1 text-[10px] font-semibold text-gray-400 hover:text-[#2c308e] transition-colors cursor-pointer"
+              >
+                {activeConv.participants.length} participant{activeConv.participants.length > 1 ? 's' : ''}
+                {showParticipants ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </button>
+            ) : (
+              <p className="text-[10px] font-semibold text-gray-400">
+                <span className={`flex items-center gap-1.5 ${isOnline ? 'text-emerald-600' : 'text-gray-400'}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`} />
+                  {isOnline ? 'En ligne' : 'Hors ligne'}
+                </span>
+              </p>
+            )}
           </div>
         </div>
       </div>
+
+      {isGroup && showParticipants && (
+        <div className="bg-[#fafafa] border-b border-gray-100 px-4 py-3 shrink-0 animate-in fade-in slide-in-from-top-1 duration-150">
+          <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-2">Participants</p>
+          <div className="flex flex-wrap gap-2">
+            {activeConv.participants.map((p: any) => (
+              <div key={p._id || p.id} className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-full px-2 py-1 shadow-xs">
+                <Avatar className="h-5 w-5">
+                  <AvatarImage src={p.picture} alt={p.name} />
+                  <AvatarFallback className="bg-[#2c308e] text-white text-[7px] font-bold">
+                    {p.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-[10px] font-semibold text-gray-700">{p.name}</span>
+                {(p._id || p.id) === currentUser?.id && (
+                  <span className="text-[8px] font-bold text-[#2c308e]">· Vous</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {activeConv.serviceId && (
         <div className="bg-white border-b border-gray-100 p-4 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
@@ -420,11 +466,14 @@ export function ChatWindow({
               )
             }
 
-            const isMe = msg.senderId === currentUser?.id
+            const senderIdStr = typeof msg.senderId === 'object' ? msg.senderId?._id : msg.senderId
+            const senderName = typeof msg.senderId === 'object' ? msg.senderId?.name : null
+            const senderPicture = typeof msg.senderId === 'object' ? msg.senderId?.picture : null
+            const isMe = senderIdStr === currentUser?.id
             return (
               <div
                 key={msg._id}
-                className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} items-center gap-2 group animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out`}
+                className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out`}
               >
                 {isMe && !msg.system && editingMessageId !== msg._id && (
                   <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-150 shrink-0 order-first">
@@ -475,7 +524,19 @@ export function ChatWindow({
                     </div>
                   </div>
                 ) : (
-                  <div className={`px-4 py-2.5 rounded-2xl text-xs max-w-[70%] leading-relaxed shadow-xs ${
+                  <div className={`flex flex-col max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
+                    {isGroup && !isMe && senderName && (
+                      <div className="flex items-center gap-1.5 mb-1 ml-1">
+                        <Avatar className="h-5 w-5 shrink-0">
+                          <AvatarImage src={senderPicture ?? undefined} />
+                          <AvatarFallback className="bg-[#2c308e] text-white text-[8px] font-bold">
+                            {senderName.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-[10px] font-bold text-[#2c308e]">{senderName}</span>
+                      </div>
+                    )}
+                  <div className={`px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-xs ${
                     isMe
                       ? 'bg-[#2c308e] text-white rounded-tr-none'
                       : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
@@ -493,6 +554,7 @@ export function ChatWindow({
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
+                  </div>
                   </div>
                 )}
               </div>

@@ -44,6 +44,11 @@ export class CreateEventDto {
   @IsString()
   titre!: string;
 
+  @ApiPropertyOptional({ description: "Description de l'événement" })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @ApiProperty({ description: 'Catégorie' })
   @IsNotEmpty()
   @IsString()
@@ -70,4 +75,28 @@ export class CreateEventDto {
   @IsOptional()
   @IsEnum(EventStatus)
   statut?: EventStatus;
+
+  @ApiPropertyOptional({ description: 'Événement payant' })
+  @IsOptional()
+  payant?: boolean;
+
+  @ApiPropertyOptional({ description: "Coût en points pour participer (si payant)" })
+  @IsOptional()
+  @IsNumber()
+  pointsCout?: number;
+
+  @ApiPropertyOptional({ description: 'Points gagnés par le créateur à la validation' })
+  @IsOptional()
+  @IsNumber()
+  pointsCreateur?: number;
+
+  @ApiPropertyOptional({ description: 'Points gagnés par chaque participant présent' })
+  @IsOptional()
+  @IsNumber()
+  pointsParticipant?: number;
+
+  @ApiPropertyOptional({ description: "URL de la photo de l'événement" })
+  @IsOptional()
+  @IsString()
+  photoUrl?: string;
 }

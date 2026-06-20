@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type EventDocument = HydratedDocument<Event>;
 
@@ -12,8 +12,14 @@ export enum EventStatus {
 
 @Schema({ timestamps: true })
 export class Event {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createurId!: Types.ObjectId;
+
   @Prop({ required: true })
   titre!: string;
+
+  @Prop()
+  description?: string;
 
   @Prop({ required: true })
   categorie!: string;
@@ -39,6 +45,33 @@ export class Event {
 
   @Prop({ type: String, enum: EventStatus, default: EventStatus.PLANNED })
   statut!: EventStatus;
+
+  @Prop({ type: Types.ObjectId, ref: 'Conversation' })
+  conversationId?: Types.ObjectId;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  interesses!: Types.ObjectId[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  participants!: Types.ObjectId[];
+
+  @Prop({ type: Boolean, default: false })
+  payant!: boolean;
+
+  @Prop({ type: Number })
+  pointsCout?: number;
+
+  @Prop({ type: Number, default: 10 })
+  pointsCreateur!: number;
+
+  @Prop({ type: Number, default: 5 })
+  pointsParticipant!: number;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  participantsPresents!: Types.ObjectId[];
+
+  @Prop()
+  photoUrl?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

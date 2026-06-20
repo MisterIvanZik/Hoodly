@@ -1,9 +1,15 @@
 import type { Service, ServiceCreator } from './service.types'
 
+export interface MessageSender {
+  _id: string
+  name: string
+  picture?: string
+}
+
 export interface Message {
   _id: string
   conversationId: string
-  senderId?: string
+  senderId?: string | MessageSender
   content: string
   system: boolean
   edited?: boolean
@@ -21,6 +27,8 @@ export interface Creneau {
 export interface Conversation {
   _id: string
   serviceId?: Service
+  eventId?: string
+  nom?: string
   participants: ServiceCreator[]
   statut: 'active' | 'archived'
   prestationStatut?: 'aucun' | 'valide' | 'en_cours' | 'termine' | 'refuse'
