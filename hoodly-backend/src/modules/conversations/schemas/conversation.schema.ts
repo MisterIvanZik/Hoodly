@@ -8,6 +8,12 @@ export class Conversation {
   @Prop({ type: Types.ObjectId, ref: 'Service' })
   serviceId?: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Event' })
+  eventId?: Types.ObjectId;
+
+  @Prop()
+  nom?: string;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], required: true })
   participants!: Types.ObjectId[];
 

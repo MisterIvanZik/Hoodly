@@ -17,6 +17,7 @@ import {
   ConversationDocument,
 } from '../schemas/conversation.schema';
 import { Message, MessageDocument } from '../schemas/message.schema';
+import { User, UserDocument } from '../../users/schemas/user.schema';
 import { ServicesService } from '../../services/services/services.service';
 import { ConversationsGateway } from '../gateways/conversations.gateway';
 import { normalizeDateOnly } from '../../../shared/utils/date.util';
@@ -27,11 +28,69 @@ export class ConversationsService {
     @InjectModel(Conversation.name)
     private conversationModel: Model<ConversationDocument>,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(forwardRef(() => ServicesService))
     private servicesService: ServicesService,
     @Inject(forwardRef(() => ConversationsGateway))
     private conversationsGateway: ConversationsGateway,
   ) {}
+
+  async createForEvent(
+    eventId: string,
+    createurId: string,
+    eventTitre: string,
+  ): Promise<ConversationDocument> {
+    const conv = new this.conversationModel({
+      eventId: new Types.ObjectId(eventId),
+      nom: eventTitre,
+      participants: [new Types.ObjectId(createurId)],
+      statut: 'active',
+    });
+    await conv.save();
+    await this.sendSystemMessage(
+      conv._id.toString(),
+      `🎉 Discussion de groupe créée pour l'événement "${eventTitre}". Les participants seront ajoutés automatiquement à cette discussion.`,
+    );
+    return conv;
+  }
+
+  async addParticipantToEvent(
+    eventId: string,
+    userId: string,
+  ): Promise<void> {
+    const conv = await this.conversationModel.findOneAndUpdate(
+      { eventId: new Types.ObjectId(eventId) },
+      { $addToSet: { participants: new Types.ObjectId(userId) } },
+      { new: true },
+    );
+    if (conv) {
+      const user = await this.userModel.findById(userId).lean();
+      const userName = (user as any)?.name || 'Un participant';
+      await this.sendSystemMessage(
+        conv._id.toString(),
+        `👋 ${userName} a rejoint la discussion.`,
+      );
+    }
+  }
+
+  async removeParticipantFromEvent(
+    eventId: string,
+    userId: string,
+  ): Promise<void> {
+    const conv = await this.conversationModel.findOneAndUpdate(
+      { eventId: new Types.ObjectId(eventId) },
+      { $pull: { participants: new Types.ObjectId(userId) } },
+      { new: true },
+    );
+    if (conv) {
+      const user = await this.userModel.findById(userId).lean();
+      const userName = (user as any)?.name || 'Un participant';
+      await this.sendSystemMessage(
+        conv._id.toString(),
+        `👋 ${userName} a quitté la discussion.`,
+      );
+    }
+  }
 
   async getOrCreate(
     serviceId: string | undefined,
@@ -259,10 +318,9 @@ export class ConversationsService {
     }
 
     return this.messageModel
-      .find({
-        conversationId: new Types.ObjectId(conversationId),
-      })
-      .sort({ createdAt: 1 });
+      .find({ conversationId: new Types.ObjectId(conversationId) })
+      .sort({ createdAt: 1 })
+      .populate('senderId', 'name picture');
   }
 
   async rejectOtherCandidates(

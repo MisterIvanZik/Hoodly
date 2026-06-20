@@ -21,6 +21,7 @@ import {
   LifeBuoy,
   MessageSquare,
   Coins,
+  PartyPopper,
 } from "lucide-react"
 import { Bell } from "../animate-ui/icons/bell"
 import {
@@ -49,6 +50,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 const items = [
   { title: "Accueil", url: "/dashboard", icon: Home },
   { title: "Services", url: "/services", icon: Users },
+  { title: "Événements", url: "/evenements", icon: PartyPopper },
   { title: "Messages", url: "/messages", icon: MessageSquare },
   { title: "Mon Agenda", url: "/planning", icon: Calendar },
   { title: "Incidents", url: "/incidents", icon: AlertTriangle },
@@ -165,7 +167,9 @@ export default function AppLayout() {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à l'agenda de quartier."
                                   } else if (item.url === "/profil") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à votre profil complet."
-                                  } else if (item.url === "/incidents") {
+                                  } else if (item.url === "/evenements") {
+                                    msg = "Vérifiez votre compte pour pouvoir accéder aux événements du quartier."
+                                } else if (item.url === "/incidents") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder au signalement d'incidents."
                                   } else if (item.url === "/map") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à la carte de quartier."

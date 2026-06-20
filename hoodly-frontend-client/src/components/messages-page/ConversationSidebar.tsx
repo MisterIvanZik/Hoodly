@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
-import { MessageSquarePlus, Search, HeartHandshake, Loader2 } from 'lucide-react'
+import { MessageSquarePlus, Search, HeartHandshake, Loader2, PartyPopper } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar'
 
@@ -152,7 +152,8 @@ export function ConversationSidebar({
           </div>
         ) : (
           filteredConversations.map((conv) => {
-            const other = getOtherParticipant(conv)
+            const isGroup = !!conv.eventId
+            const other = isGroup ? null : getOtherParticipant(conv)
             const isSelected = activeId === conv._id
             const hasServiceLink = !!conv.serviceId
             const categoryStyle = hasServiceLink && conv.serviceId ? CATEGORY_STYLES[conv.serviceId.categorie] : null
@@ -163,6 +164,7 @@ export function ConversationSidebar({
                 type="button"
                 onClick={() => onSelectConversation(conv._id)}
                 className={`flex w-full items-center gap-3 p-3 transition-all text-left outline-none cursor-pointer ${
+                  isGroup ? 'border-l-4 border-l-[#2c308e] rounded-r-2xl rounded-l-none' :
                   categoryStyle ? `${categoryStyle.border} rounded-r-2xl rounded-l-none` : 'rounded-2xl'
                 } ${
                   isSelected
@@ -171,22 +173,30 @@ export function ConversationSidebar({
                 }`}
               >
                 <div className="relative shrink-0">
-                  <Avatar className="h-10 w-10 border border-gray-100">
-                    <AvatarImage src={other?.picture} alt={other?.name} />
-                    <AvatarFallback className="bg-[#2c308e] text-white font-bold text-sm">
-                      {other?.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  {other && (
-                    <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${
-                      onlineUsers.has(other.id || other._id) ? 'bg-emerald-500' : 'bg-gray-300'
-                    }`} />
+                  {isGroup ? (
+                    <div className="h-10 w-10 rounded-full bg-[#e9eaf6] border border-[#2c308e]/20 flex items-center justify-center">
+                      <PartyPopper className="h-5 w-5 text-[#2c308e]" />
+                    </div>
+                  ) : (
+                    <>
+                      <Avatar className="h-10 w-10 border border-gray-100">
+                        <AvatarImage src={other?.picture} alt={other?.name} />
+                        <AvatarFallback className="bg-[#2c308e] text-white font-bold text-sm">
+                          {other?.name?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {other && (
+                        <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${
+                          onlineUsers.has(other.id || other._id) ? 'bg-emerald-500' : 'bg-gray-300'
+                        }`} />
+                      )}
+                    </>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
                     <p className="text-xs font-bold text-gray-900 truncate">
-                      {other?.name || 'Voisin'}
+                      {isGroup ? (conv.nom || 'Événement') : (other?.name || 'Voisin')}
                     </p>
                     <p className="text-[9px] text-gray-400 shrink-0">
                       {new Date(conv.updatedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
@@ -194,9 +204,16 @@ export function ConversationSidebar({
                   </div>
                   <div className="flex items-center gap-1.5 justify-between">
                     <p className="text-[11px] text-gray-500 truncate leading-relaxed">
-                      {conv.serviceId ? `Entraide : ${conv.serviceId.titre}` : 'Discussion générale'}
+                      {isGroup
+                        ? `Groupe · ${conv.participants.length} participant${conv.participants.length > 1 ? 's' : ''}`
+                        : conv.serviceId ? `Entraide : ${conv.serviceId.titre}` : 'Discussion générale'}
                     </p>
-                    {hasServiceLink && conv.serviceId && categoryStyle && (
+                    {isGroup && (
+                      <span className="text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 border bg-[#e9eaf6] text-[#2c308e] border-[#2c308e]/20">
+                        Événement
+                      </span>
+                    )}
+                    {!isGroup && hasServiceLink && conv.serviceId && categoryStyle && (
                       <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 border ${categoryStyle.bg}`}>
                         {conv.serviceId.categorie}
                       </span>

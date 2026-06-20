@@ -63,9 +63,10 @@ describe('EventsController', () => {
       const expectedResult = { id: '1', ...dto };
       service.create.mockResolvedValue(expectedResult);
 
-      const result = await controller.create(dto);
+      const mockUser = { userId: 'user-123' };
+      const result = await controller.create(dto, mockUser);
 
-      expect(service.create).toHaveBeenCalledWith(dto);
+      expect(service.create).toHaveBeenCalledWith(dto, mockUser.userId);
       expect(result).toEqual(expectedResult);
     });
   });

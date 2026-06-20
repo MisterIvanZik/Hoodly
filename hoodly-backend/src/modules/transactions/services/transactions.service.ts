@@ -122,6 +122,26 @@ export class TransactionsService {
     }
   }
 
+  async awardPoints(
+    recipientId: string,
+    amount: number,
+    description: string,
+    eventId?: string,
+  ): Promise<TransactionDocument> {
+    await this.userModel.findByIdAndUpdate(recipientId, {
+      $inc: { points: amount },
+    });
+
+    const newTransaction = new this.transactionModel({
+      recipientId: new Types.ObjectId(recipientId),
+      amount,
+      type: TransactionType.EVENT_REWARD,
+      description,
+      ...(eventId && { eventId: new Types.ObjectId(eventId) }),
+    });
+    return newTransaction.save();
+  }
+
   async findAllForUser(userId: string): Promise<TransactionDocument[]> {
     const userObjectId = new Types.ObjectId(userId);
     return this.transactionModel

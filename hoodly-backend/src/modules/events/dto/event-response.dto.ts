@@ -22,8 +22,14 @@ export class EventResponseDto {
   @ApiProperty({ description: 'ID MongoDB' })
   id!: string;
 
+  @ApiProperty({ description: 'ID du créateur' })
+  createurId!: string;
+
   @ApiProperty({ description: "Titre de l'événement" })
   titre!: string;
+
+  @ApiPropertyOptional({ description: "Description de l'événement" })
+  description?: string;
 
   @ApiProperty({ description: 'Catégorie' })
   categorie!: string;
@@ -39,6 +45,36 @@ export class EventResponseDto {
 
   @ApiProperty({ description: 'Statut', enum: EventStatus })
   statut!: EventStatus;
+
+  @ApiProperty({ description: 'Utilisateurs intéressés (IDs)' })
+  interesses!: string[];
+
+  @ApiProperty({ description: 'Participants (IDs)' })
+  participants!: string[];
+
+  @ApiPropertyOptional({ description: 'Participants (objets peuplés)' })
+  participantsFull?: { id: string; name: string; picture?: string }[];
+
+  @ApiProperty({ description: 'Événement payant' })
+  payant!: boolean;
+
+  @ApiPropertyOptional({ description: "Coût en points pour participer" })
+  pointsCout?: number;
+
+  @ApiProperty({ description: 'Points gagnés par le créateur à la validation' })
+  pointsCreateur!: number;
+
+  @ApiProperty({ description: 'Points gagnés par chaque participant présent' })
+  pointsParticipant!: number;
+
+  @ApiProperty({ description: 'IDs des participants présents après validation' })
+  participantsPresents!: string[];
+
+  @ApiPropertyOptional({ description: "URL de la photo de l'événement" })
+  photoUrl?: string;
+
+  @ApiPropertyOptional({ description: 'ID de la discussion de groupe' })
+  conversationId?: string;
 
   @ApiPropertyOptional({ description: 'Date de création' })
   createdAt?: Date;

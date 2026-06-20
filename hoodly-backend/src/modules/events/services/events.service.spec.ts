@@ -92,9 +92,9 @@ describe('EventsService', () => {
         save,
       }));
 
-      const result = await service.create(eventData);
+      const result = await service.create(eventData, 'user-123');
 
-      expect(eventModel).toHaveBeenCalledWith(eventData);
+      expect(eventModel).toHaveBeenCalledWith({ ...eventData, createurId: expect.any(Object) });
       expect(save).toHaveBeenCalled();
       expect(result).toEqual(toExpectedDto(savedEvent));
     });
@@ -112,7 +112,7 @@ describe('EventsService', () => {
         save,
       }));
 
-      await expect(service.create(eventData)).rejects.toThrow(
+      await expect(service.create(eventData, 'user-123')).rejects.toThrow(
         InternalServerErrorException,
       );
     });

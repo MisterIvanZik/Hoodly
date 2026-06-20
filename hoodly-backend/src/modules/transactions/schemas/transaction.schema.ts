@@ -7,6 +7,8 @@ export enum TransactionType {
   SERVICE_PAYMENT = 'service_payment',
   WELCOME_GRANT = 'welcome_grant',
   ADMIN_ADJUSTMENT = 'admin_adjustment',
+  EVENT_PAYMENT = 'event_payment',
+  EVENT_REWARD = 'event_reward',
 }
 
 @Schema({ timestamps: true })
@@ -22,6 +24,9 @@ export class Transaction {
 
   @Prop({ type: Types.ObjectId, ref: 'Service' })
   serviceId?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Event' })
+  eventId?: Types.ObjectId;
 
   @Prop({ required: true })
   description!: string;
