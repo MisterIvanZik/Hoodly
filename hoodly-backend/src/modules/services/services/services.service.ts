@@ -21,6 +21,7 @@ import { ConversationsService } from '../../conversations/services/conversations
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import { TransactionsService } from '../../transactions/services/transactions.service';
 import { TransactionType } from '../../transactions/schemas/transaction.schema';
+import { ContractsService } from '../../contracts/contracts.service';
 
 @Injectable()
 export class ServicesService {
@@ -30,6 +31,8 @@ export class ServicesService {
     @Inject(forwardRef(() => ConversationsService))
     private conversationsService: ConversationsService,
     private transactionsService: TransactionsService,
+    @Inject(forwardRef(() => ContractsService))
+    private contractsService: ContractsService,
   ) {}
 
   async create(
@@ -73,25 +76,25 @@ export class ServicesService {
 
     const [services, total] = await Promise.all([
       this.serviceModel
-         .find(query)
-         .skip(skip)
-         .limit(limit)
-         .sort({ createdAt: -1 })
-         .populate('createurId', 'name email picture')
-         .populate('responderId', 'name email picture')
-         .populate('zoneId', 'nom ville')
-         .lean(),
-       this.serviceModel.countDocuments(query),
-     ]);
- 
-     return {
-       services,
-       total,
-       page,
-       limit,
-       totalPages: Math.ceil(total / limit),
-     };
-   }
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .populate('createurId', 'name email picture')
+        .populate('responderId', 'name email picture')
+        .populate('zoneId', 'nom ville')
+        .lean(),
+      this.serviceModel.countDocuments(query),
+    ]);
+
+    return {
+      services,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 
   async findById(id: string): Promise<ServiceDocument> {
     const service = await this.serviceModel
@@ -185,6 +188,12 @@ export class ServicesService {
   async accepter(id: string, responderId: string): Promise<ServiceDocument> {
     const service = await this.serviceModel.findById(id);
     if (!service) throw new NotFoundException('Service introuvable');
+
+    if (service.contractId) {
+      throw new BadRequestException(
+        'Un contrat est déjà lié à ce service. Veuillez le signer pour continuer.',
+      );
+    }
 
     if (service.statut !== ServiceStatus.ACTIF) {
       throw new BadRequestException("Ce service n'est plus disponible");
@@ -330,6 +339,17 @@ export class ServicesService {
     const service = await this.serviceModel.findById(id);
     if (!service) throw new NotFoundException('Service introuvable');
 
+    if (service.contractId) {
+      const contract = await this.contractsService.findById(
+        service.contractId.toString(),
+      );
+      if (!contract || contract.status !== 'signed') {
+        throw new BadRequestException(
+          'Le contrat doit être signé par les deux parties avant de pouvoir démarrer la prestation.',
+        );
+      }
+    }
+
     let conv: any = null;
     if (conversationId) {
       conv = await this.conversationsService.findOne(conversationId, userId);
@@ -428,6 +448,17 @@ export class ServicesService {
     const service = await this.serviceModel.findById(id);
     if (!service) throw new NotFoundException('Service introuvable');
 
+    if (service.contractId) {
+      const contract = await this.contractsService.findById(
+        service.contractId.toString(),
+      );
+      if (!contract || contract.status !== 'signed') {
+        throw new BadRequestException(
+          'Le contrat doit être signé par les deux parties avant de pouvoir finaliser le service.',
+        );
+      }
+    }
+
     let conv: any = null;
     if (conversationId) {
       conv = await this.conversationsService.findOne(conversationId, userId);
@@ -522,6 +553,16 @@ export class ServicesService {
       throw new BadRequestException(
         'Aucune prestation accomplie trouvée à valider',
       );
+    }
+
+    if (service.contractId) {
+      await this.contractsService.complete(
+        service.contractId.toString(),
+        userId,
+      );
+      const updatedService = await this.serviceModel.findById(id);
+      if (!updatedService) throw new NotFoundException('Service introuvable');
+      return updatedService;
     }
 
     if (service.type === ServiceType.DEMANDE) {

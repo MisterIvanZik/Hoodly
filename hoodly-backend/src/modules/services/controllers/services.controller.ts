@@ -57,8 +57,16 @@ export class ServicesController {
   })
   @ApiQuery({ name: 'categorie', required: false, description: 'Catégorie' })
   @ApiQuery({ name: 'zoneId', required: false, description: 'ID de la zone' })
-  @ApiQuery({ name: 'createurId', required: false, description: 'ID du créateur' })
-  @ApiQuery({ name: 'responderId', required: false, description: 'ID de l\'intervenant' })
+  @ApiQuery({
+    name: 'createurId',
+    required: false,
+    description: 'ID du créateur',
+  })
+  @ApiQuery({
+    name: 'responderId',
+    required: false,
+    description: "ID de l'intervenant",
+  })
   @ApiResponse({ status: 200, description: 'Liste des services' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   async findAll(
