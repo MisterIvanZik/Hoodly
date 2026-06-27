@@ -61,20 +61,22 @@ describe('VotesController', () => {
 
   describe('findAllByZone', () => {
     it('should call service.findAllByZone', async () => {
+      const user = { userId: 'user-id', role: 'user' };
       mockVotesService.findAllByZone.mockResolvedValueOnce([]);
 
-      const result = await controller.findAllByZone('zone-id');
+      const result = await controller.findAllByZone('zone-id', user);
 
       expect(result).toEqual([]);
-      expect(mockVotesService.findAllByZone).toHaveBeenCalledWith('zone-id');
+      expect(mockVotesService.findAllByZone).toHaveBeenCalledWith('zone-id', 'user-id', 'user');
     });
   });
 
   describe('findOne', () => {
     it('should call service.findOne', async () => {
+      const user = { userId: 'user-id', role: 'user' };
       mockVotesService.findOne.mockResolvedValueOnce({ _id: 'vote-id' });
 
-      const result = await controller.findOne('vote-id');
+      const result = await controller.findOne('vote-id', user);
 
       expect(result).toEqual({ _id: 'vote-id' });
       expect(mockVotesService.findOne).toHaveBeenCalledWith('vote-id');

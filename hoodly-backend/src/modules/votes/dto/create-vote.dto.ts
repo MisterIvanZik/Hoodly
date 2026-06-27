@@ -7,6 +7,7 @@ import {
   ArrayMinSize,
   IsDateString,
   IsMongoId,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateVoteDto {
@@ -34,8 +35,16 @@ export class CreateVoteDto {
   @ArrayMinSize(2, { message: 'Il faut au moins 2 options de vote' })
   options!: string[];
 
-  @ApiProperty({ description: 'Date de fin du vote (ISO string)' })
+  @ApiPropertyOptional({ description: 'Date de fin du vote (ISO string)' })
+  @IsOptional()
   @IsDateString()
-  @IsNotEmpty()
-  expirationDate!: string;
+  expirationDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Indique si le vote est anonyme',
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAnonymous?: boolean;
 }
