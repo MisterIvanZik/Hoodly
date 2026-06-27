@@ -23,6 +23,7 @@ import {
   Coins,
   PartyPopper,
   FileText,
+  Vote,
 } from "lucide-react"
 import { Bell } from "../animate-ui/icons/bell"
 import {
@@ -55,6 +56,7 @@ const items = [
   { title: "Messages", url: "/messages", icon: MessageSquare },
   { title: "Contrats", url: "/contrats", icon: FileText },
   { title: "Mon Agenda", url: "/planning", icon: Calendar },
+  { title: "Votes", url: "/votes", icon: Vote },
   { title: "Incidents", url: "/incidents", icon: AlertTriangle },
   { title: "Carte du quartier", url: "/map", icon: MapIcon },
 ]
@@ -171,7 +173,9 @@ export default function AppLayout() {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à votre profil complet."
                                   } else if (item.url === "/evenements") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder aux événements du quartier."
-                                } else if (item.url === "/incidents") {
+                                  } else if (item.url === "/votes") {
+                                    msg = "Vérifiez votre compte pour pouvoir participer aux votes de quartier."
+                                  } else if (item.url === "/incidents") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder au signalement d'incidents."
                                   } else if (item.url === "/map") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à la carte de quartier."

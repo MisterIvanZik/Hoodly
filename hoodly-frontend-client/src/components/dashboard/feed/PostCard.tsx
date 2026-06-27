@@ -115,6 +115,19 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
       <CardContent className="p-4 pt-2">
         <p className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
 
+        {post.content.includes('🗳️') && (
+          <div className="mt-3 pt-3 border-t border-gray-100 flex">
+            <Button
+              asChild
+              className="bg-[#2c308e] hover:bg-[#2c308e]/95 text-white font-bold text-xs rounded-xl h-9 px-4 shadow-sm transition-all cursor-pointer active:scale-98"
+            >
+              <a href="/votes">
+                🗳️ Participer à la consultation
+              </a>
+            </Button>
+          </div>
+        )}
+
         {post.media && post.media.length > 0 && (
           <div className={`mt-3 grid gap-2 ${post.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {post.media.map((url, i) => (
