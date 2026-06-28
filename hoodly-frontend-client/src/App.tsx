@@ -17,6 +17,7 @@ import ContractDetailPage from './pages/ContractDetailPage'
 import VotesPage from './pages/VotesPage'
 import SettingsPage from './pages/SettingsPage'
 import HelpPage from './pages/HelpPage'
+import IncidentsPage from './pages/IncidentsPage'
 import AppLayout from './components/shared/AppLayout'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import OnboardingGuard from './components/shared/OnboardingGuard'
@@ -72,6 +73,7 @@ function App() {
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/evenements" element={<EventsPage />} />
           <Route path="/votes" element={<VotesPage />} />
+          <Route path="/incidents" element={<IncidentsPage />} />
           <Route path="/profil" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/aide" element={<HelpPage />} />

@@ -4,6 +4,12 @@ import { HydratedDocument, Types } from 'mongoose';
 import { IncidentStatus } from '../enums/incident-status.enum';
 import { IncidentPriority } from '../enums/incident-priority.enum';
 
+export enum IncidentContext {
+  QUARTIER = 'quartier',
+  SERVICE = 'service',
+  EVENEMENT = 'evenement',
+}
+
 export type IncidentDocument = HydratedDocument<Incident>;
 
 @Schema({ timestamps: true })
@@ -40,6 +46,23 @@ export class Incident {
     default: IncidentPriority.NORMAL,
   })
   priorite!: IncidentPriority;
+
+  @ApiProperty({ description: "Contexte de l'incident", enum: IncidentContext })
+  @Prop({
+    type: String,
+    enum: IncidentContext,
+    required: true,
+    default: IncidentContext.QUARTIER,
+  })
+  contexte!: IncidentContext;
+
+  @ApiPropertyOptional({ description: 'ID du service associé' })
+  @Prop({ type: Types.ObjectId, ref: 'Service' })
+  serviceId?: Types.ObjectId;
+
+  @ApiPropertyOptional({ description: "ID de l'événement associé" })
+  @Prop({ type: Types.ObjectId, ref: 'Event' })
+  eventId?: Types.ObjectId;
 
   @ApiPropertyOptional({ description: 'ID du signaleur' })
   @Prop()

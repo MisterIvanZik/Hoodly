@@ -21,6 +21,10 @@ public class Incident {
     private String createdAt;
     private String updatedAt;
 
+    private String contexte;
+    private String serviceId;
+    private String eventId;
+
     @JsonIgnore
     private String syncStatus;
 
@@ -56,6 +60,23 @@ public class Incident {
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
+    public String getContexte() { return contexte; }
+    public void setContexte(String contexte) { this.contexte = contexte; }
+
+    public String getServiceId() { return serviceId; }
+    public void setServiceId(String serviceId) { this.serviceId = serviceId; }
+
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+
     public String getSyncStatus() { return syncStatus; }
     public void setSyncStatus(String syncStatus) { this.syncStatus = syncStatus; }
+
+    @JsonIgnore
+    public String getFormattedType() {
+        if (contexte == null || contexte.isEmpty() || "quartier".equals(contexte)) {
+            return type;
+        }
+        return "[" + contexte.substring(0, 1).toUpperCase() + contexte.substring(1) + "] " + type;
+    }
 }

@@ -8,6 +8,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IncidentStatus } from '../enums/incident-status.enum';
 import { IncidentPriority } from '../enums/incident-priority.enum';
+import { IncidentContext } from '../schemas/incident.schema';
 
 export class CreateIncidentDto {
   @ApiProperty({ description: "Type d'incident" })
@@ -34,6 +35,24 @@ export class CreateIncidentDto {
   @IsOptional()
   @IsEnum(IncidentPriority)
   priorite?: IncidentPriority;
+
+  @ApiPropertyOptional({
+    description: "Contexte de l'incident",
+    enum: IncidentContext,
+  })
+  @IsOptional()
+  @IsEnum(IncidentContext)
+  contexte?: IncidentContext;
+
+  @ApiPropertyOptional({ description: 'ID du service associé' })
+  @IsOptional()
+  @IsMongoId()
+  serviceId?: string;
+
+  @ApiPropertyOptional({ description: "ID de l'événement associé" })
+  @IsOptional()
+  @IsMongoId()
+  eventId?: string;
 
   @ApiPropertyOptional({ description: 'ID du signaleur' })
   @IsOptional()
