@@ -14,6 +14,15 @@ export function useEvents() {
     staleTime: 1000 * 30,
   })
 
+  const recommendationsQuery = useQuery({
+    queryKey: ['events', 'recommendations'],
+    queryFn: async () => {
+      const { data } = await eventsApi.getRecommendations()
+      return data
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
   const createMutation = useMutation({
     mutationFn: async (dto: CreateEventDto) => {
       const { data } = await eventsApi.create(dto)
@@ -48,6 +57,7 @@ export function useEvents() {
 
   return {
     events: eventsQuery.data?.events ?? [],
+    recommendations: recommendationsQuery.data ?? [],
     isLoading: eventsQuery.isLoading,
     refetch: eventsQuery.refetch,
     createEvent: createMutation.mutateAsync,

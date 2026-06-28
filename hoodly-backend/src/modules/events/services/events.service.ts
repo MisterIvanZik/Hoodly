@@ -19,6 +19,7 @@ import { UpdateEventDto } from '../dto/update-event.dto';
 import { EventResponseDto } from '../dto/event-response.dto';
 import { ConversationsService } from '../../conversations/services/conversations.service';
 import { TransactionsService } from '../../transactions/services/transactions.service';
+import { Neo4jService } from '../../neo4j/neo4j.service';
 
 @Injectable()
 export class EventsService {
@@ -27,6 +28,7 @@ export class EventsService {
     @InjectModel(Contract.name) private contractModel: Model<ContractDocument>,
     private readonly conversationsService: ConversationsService,
     private readonly transactionsService: TransactionsService,
+    private readonly neo4j: Neo4jService,
   ) {}
 
   async create(
@@ -107,11 +109,13 @@ export class EventsService {
       await this.eventModel.findByIdAndUpdate(id, {
         $pull: { interesses: userObjId },
       });
+      this.neo4j.removeInteret(userId, id);
       return { interested: false };
     } else {
       await this.eventModel.findByIdAndUpdate(id, {
         $addToSet: { interesses: userObjId },
       });
+      this.neo4j.syncInteret(userId, id, event.categorie);
       return { interested: true };
     }
   }
@@ -163,6 +167,7 @@ export class EventsService {
         $pull: { participants: userObjId },
       });
       await this.conversationsService.removeParticipantFromEvent(id, userId);
+      this.neo4j.removeParticipation(userId, id);
       return { participating: false };
     }
 
@@ -242,6 +247,7 @@ export class EventsService {
       $addToSet: { participants: userObjId },
     });
     await this.conversationsService.addParticipantToEvent(id, userId);
+    this.neo4j.syncParticipation(userId, id, event.categorie);
     return { participating: true };
   }
 

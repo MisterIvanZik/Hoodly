@@ -36,7 +36,7 @@ export default function EventsPage() {
   const navigate = useNavigate()
   const { user } = useUser()
   const {
-    events, isLoading,
+    events, recommendations, isLoading,
     toggleInteret, participer, createEvent, isCreating,
     validerEvenement, isValidating,
   } = useEvents()
@@ -211,18 +211,37 @@ export default function EventsPage() {
               <p className="text-xs font-bold">Chargement...</p>
             </div>
           ) : deck.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 py-24 text-center text-gray-400">
-              <PartyPopper className="h-12 w-12 text-gray-300" />
-              <div>
-                <p className="font-bold text-gray-800">Vous avez tout vu !</p>
-                <p className="text-sm mt-1">Revenez plus tard ou créez votre propre événement.</p>
+            <div className="w-full max-w-lg space-y-6">
+              <div className="flex flex-col items-center gap-4 py-10 text-center text-gray-400">
+                <PartyPopper className="h-12 w-12 text-gray-300" />
+                <div>
+                  <p className="font-bold text-gray-800">Vous avez tout vu !</p>
+                  <p className="text-sm mt-1">Revenez plus tard ou créez votre propre événement.</p>
+                </div>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-[#2c308e] text-white text-xs font-bold hover:bg-[#2c308e]/90 transition-all cursor-pointer"
+                >
+                  Créer un événement
+                </button>
               </div>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="mt-2 px-5 py-2.5 rounded-xl bg-[#2c308e] text-white text-xs font-bold hover:bg-[#2c308e]/90 transition-all cursor-pointer"
-              >
-                Créer un événement
-              </button>
+              {recommendations.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[#1e224e] uppercase tracking-wider">Suggestions pour vous</span>
+                    <span className="text-[10px] text-[#2c308e] bg-[#e9eaf6] px-2 py-0.5 rounded-full font-bold">Neo4j ✦</span>
+                  </div>
+                  <EventList
+                    events={recommendations}
+                    isLoading={false}
+                    userId={userId}
+                    emptyLabel=""
+                    emptyHint=""
+                    onParticiperToggle={handleParticiperToggle}
+                    onVoirDiscussion={(convId) => navigate(`/messages?id=${convId}`)}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <>

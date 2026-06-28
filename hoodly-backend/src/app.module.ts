@@ -19,7 +19,8 @@ import { ContractsModule } from './modules/contracts/contracts.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { EmailsModule } from './modules/emails/emails.module';
 import { RgpdModule } from './modules/rgpd/rgpd.module';
-
+import { Neo4jModule } from './modules/neo4j/neo4j.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 import { VersionModule } from './modules/version/version.module';
 
 
@@ -53,6 +54,8 @@ import { VersionModule } from './modules/version/version.module';
     DocumentsModule,
     EmailsModule,
     RgpdModule,
+    Neo4jModule,
+    RecommendationsModule,
     VersionModule,
   ],
   controllers: [AppController],

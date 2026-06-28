@@ -1,5 +1,5 @@
 import api from '../../lib/axios'
-import type { CreateEventDto, PaginatedEvents } from '../../types/event.types'
+import type { CreateEventDto, Event, PaginatedEvents } from '../../types/event.types'
 
 export const eventsApi = {
   getAll: (params?: { page?: number; limit?: number; search?: string; categorie?: string; statut?: string }) =>
@@ -27,4 +27,7 @@ export const eventsApi = {
 
   delete: (id: string) =>
     api.delete(`/events/${id}`),
+
+  getRecommendations: () =>
+    api.get<Event[]>('/recommendations/events'),
 }
