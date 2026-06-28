@@ -115,7 +115,7 @@ public class DashboardController {
 
         adminNameLabel.setText("Modérateur");
 
-        typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("formattedType"));
         descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         statutCol.setCellValueFactory(new PropertyValueFactory<>("statut"));
         prioriteCol.setCellValueFactory(new PropertyValueFactory<>("priorite"));

@@ -26,6 +26,15 @@ export class IncidentsService {
     if (data.assignedTo) {
       incidentData.assignedTo = new Types.ObjectId(data.assignedTo);
     }
+    if (data.zoneId) {
+      incidentData.zoneId = new Types.ObjectId(data.zoneId);
+    }
+    if (data.serviceId) {
+      incidentData.serviceId = new Types.ObjectId(data.serviceId);
+    }
+    if (data.eventId) {
+      incidentData.eventId = new Types.ObjectId(data.eventId);
+    }
     const incident = new this.incidentModel(incidentData);
     return incident.save();
   }

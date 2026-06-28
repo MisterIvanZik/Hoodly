@@ -35,8 +35,8 @@ public class IncidentDao {
         String sql = """
             INSERT OR REPLACE INTO incidents
                 (id, type, description, statut, priorite, signaled_par, zone_id, photo_url,
-                 created_at, updated_at, synced_at, sync_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'synced')
+                 created_at, updated_at, synced_at, sync_status, contexte, service_id, event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'synced', ?, ?, ?)
         """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, incident.getId());
@@ -50,6 +50,9 @@ public class IncidentDao {
             stmt.setString(9, incident.getCreatedAt());
             stmt.setString(10, incident.getUpdatedAt());
             stmt.setString(11, Instant.now().toString());
+            stmt.setString(12, incident.getContexte());
+            stmt.setString(13, incident.getServiceId());
+            stmt.setString(14, incident.getEventId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erreur upsertFromServer : " + e.getMessage(), e);
@@ -89,8 +92,8 @@ public class IncidentDao {
         String sql = """
             INSERT INTO incidents
                 (id, type, description, statut, priorite, signaled_par, zone_id, photo_url,
-                 created_at, sync_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_create')
+                 created_at, sync_status, contexte, service_id, event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_create', ?, ?, ?)
         """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, incident.getId());
@@ -102,6 +105,9 @@ public class IncidentDao {
             stmt.setString(7, incident.getZoneId());
             stmt.setString(8, incident.getPhotoUrl());
             stmt.setString(9, Instant.now().toString());
+            stmt.setString(10, incident.getContexte() != null ? incident.getContexte() : "quartier");
+            stmt.setString(11, incident.getServiceId());
+            stmt.setString(12, incident.getEventId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erreur insertOffline : " + e.getMessage(), e);
@@ -182,6 +188,9 @@ public class IncidentDao {
         i.setCreatedAt(rs.getString("created_at"));
         i.setUpdatedAt(rs.getString("updated_at"));
         i.setSyncStatus(rs.getString("sync_status"));
+        i.setContexte(rs.getString("contexte"));
+        i.setServiceId(rs.getString("service_id"));
+        i.setEventId(rs.getString("event_id"));
         return i;
     }
 }

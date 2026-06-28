@@ -26,6 +26,7 @@ public class DatabaseManager {
                 stmt.execute("PRAGMA journal_mode=WAL");
                 stmt.execute("PRAGMA foreign_keys=ON");
                 createTables(stmt);
+                upgradeTables(stmt);
             }
         } catch (SQLException | IOException e) {
             throw new RuntimeException("Erreur d'initialisation de la base de données : " + e.getMessage(), e);
@@ -47,7 +48,10 @@ public class DatabaseManager {
                 updated_at    TEXT,
                 synced_at     TEXT,
                 sync_status   TEXT NOT NULL DEFAULT 'synced'
-                    CHECK(sync_status IN ('synced', 'pending_create', 'pending_update'))
+                    CHECK(sync_status IN ('synced', 'pending_create', 'pending_update')),
+                contexte      TEXT,
+                service_id    TEXT,
+                event_id      TEXT
             )
         """);
 
@@ -65,6 +69,18 @@ public class DatabaseManager {
                 value TEXT NOT NULL
             )
         """);
+    }
+
+    private void upgradeTables(Statement stmt) {
+        try {
+            stmt.execute("ALTER TABLE incidents ADD COLUMN contexte TEXT");
+        } catch (SQLException ignored) {}
+        try {
+            stmt.execute("ALTER TABLE incidents ADD COLUMN service_id TEXT");
+        } catch (SQLException ignored) {}
+        try {
+            stmt.execute("ALTER TABLE incidents ADD COLUMN event_id TEXT");
+        } catch (SQLException ignored) {}
     }
 
     public static DatabaseManager getInstance() {
