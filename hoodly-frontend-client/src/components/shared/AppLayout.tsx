@@ -13,7 +13,6 @@ import {
   Users,
   Calendar,
   AlertTriangle,
-  Map as MapIcon,
   Settings,
   LogOut,
   Search,
@@ -23,6 +22,7 @@ import {
   Coins,
   PartyPopper,
   FileText,
+  Vote,
 } from "lucide-react"
 import { Bell } from "../animate-ui/icons/bell"
 import {
@@ -53,10 +53,8 @@ const items = [
   { title: "Services", url: "/services", icon: Users },
   { title: "Événements", url: "/evenements", icon: PartyPopper },
   { title: "Messages", url: "/messages", icon: MessageSquare },
-  { title: "Contrats", url: "/contrats", icon: FileText },
-  { title: "Mon Agenda", url: "/planning", icon: Calendar },
+  { title: "Votes", url: "/votes", icon: Vote },
   { title: "Incidents", url: "/incidents", icon: AlertTriangle },
-  { title: "Carte du quartier", url: "/map", icon: MapIcon },
 ]
 
 export default function AppLayout() {
@@ -133,7 +131,7 @@ export default function AppLayout() {
       <div className="flex min-h-screen w-full bg-[#f5f3ed]">
         <Sidebar className="border-r border-gray-200 bg-[#fefefa] flex">
           <SidebarHeader className="p-6">
-            <Link to="/">
+            <Link to="/dashboard">
               <h2 className="text-2xl font-bold text-[#2c308e]" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Hoodly
               </h2>
@@ -171,7 +169,9 @@ export default function AppLayout() {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à votre profil complet."
                                   } else if (item.url === "/evenements") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder aux événements du quartier."
-                                } else if (item.url === "/incidents") {
+                                  } else if (item.url === "/votes") {
+                                    msg = "Vérifiez votre compte pour pouvoir participer aux votes de quartier."
+                                  } else if (item.url === "/incidents") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder au signalement d'incidents."
                                   } else if (item.url === "/map") {
                                     msg = "Vérifiez votre compte pour pouvoir accéder à la carte de quartier."
@@ -281,6 +281,18 @@ export default function AppLayout() {
                     <Link to="/points" className="flex items-center w-full">
                       <Coins className="mr-2 h-4 w-4 text-gray-500" />
                       <span>Mon Solde</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
+                    <Link to="/contrats" className="flex items-center w-full">
+                      <FileText className="mr-2 h-4 w-4 text-gray-500" />
+                      <span>Contrats</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg py-2" asChild>
+                    <Link to="/planning" className="flex items-center w-full">
+                      <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                      <span>Mon Planning</span>
                     </Link>
                   </DropdownMenuItem>
 

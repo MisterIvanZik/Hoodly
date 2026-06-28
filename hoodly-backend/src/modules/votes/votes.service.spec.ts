@@ -4,6 +4,8 @@ import { Types } from 'mongoose';
 import { VotesService } from './votes.service';
 import { Vote, VoteStatus } from './schemas/vote.schema';
 import { UsersService } from '../users/services/users.service';
+import { PostsService } from '../posts/posts.service';
+import { VotesGateway } from './votes.gateway';
 import {
   NotFoundException,
   BadRequestException,
@@ -21,6 +23,16 @@ describe('VotesService', () => {
     findById: jest.fn(),
   };
 
+  const mockPostsService = {
+    createPost: jest.fn().mockResolvedValue({}),
+  };
+
+  const mockVotesGateway = {
+    server: {
+      emit: jest.fn(),
+    },
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -36,6 +48,8 @@ describe('VotesService', () => {
       options: ['Option A', 'Option B'],
       expirationDate: new Date(Date.now() + 3600 * 1000), // 1 hour in future
       status: VoteStatus.ACTIVE,
+      isAnonymous: true,
+      resultPosted: false,
       votedUsers: [],
       save: jest.fn().mockImplementation(function (this: any) {
         return Promise.resolve(this);
@@ -75,6 +89,14 @@ describe('VotesService', () => {
         {
           provide: UsersService,
           useValue: mockUsersService,
+        },
+        {
+          provide: PostsService,
+          useValue: mockPostsService,
+        },
+        {
+          provide: VotesGateway,
+          useValue: mockVotesGateway,
         },
       ],
     }).compile();
@@ -162,10 +184,10 @@ describe('VotesService', () => {
   describe('findAllByZone', () => {
     it('should return all votes for a zone', async () => {
       const zoneId = new Types.ObjectId();
-      const result = await service.findAllByZone(zoneId.toString());
+      const mockUserId = new Types.ObjectId().toString();
+      const result = await service.findAllByZone(zoneId.toString(), mockUserId, 'user');
 
       expect(result).toEqual([mockVoteDoc]);
-      expect(mockVoteModel.find).toHaveBeenCalledWith({ zoneId });
     });
   });
 

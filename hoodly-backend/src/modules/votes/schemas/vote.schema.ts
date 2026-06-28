@@ -4,7 +4,9 @@ import { HydratedDocument, Types } from 'mongoose';
 export type VoteDocument = HydratedDocument<Vote>;
 
 export enum VoteStatus {
+  PENDING = 'pending',
   ACTIVE = 'active',
+  REJECTED = 'rejected',
   CLOSED = 'closed',
 }
 
@@ -40,8 +42,17 @@ export class Vote {
   })
   votedUsers!: { userId: Types.ObjectId; option: string; votedAt?: Date }[];
 
-  @Prop({ type: String, enum: VoteStatus, default: VoteStatus.ACTIVE })
+  @Prop({ type: String, enum: VoteStatus, default: VoteStatus.PENDING })
   status!: VoteStatus;
+
+  @Prop()
+  refusalReason?: string;
+
+  @Prop({ type: Boolean, default: true })
+  isAnonymous!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  resultPosted!: boolean;
 
   createdAt?: Date;
   updatedAt?: Date;
