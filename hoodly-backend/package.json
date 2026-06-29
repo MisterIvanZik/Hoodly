@@ -50,7 +50,8 @@
     "pdf-lib": "^1.17.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "@dotenvx/dotenvx": "^1.64.0"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.64.0",
