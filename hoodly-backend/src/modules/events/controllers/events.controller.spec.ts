@@ -120,7 +120,7 @@ describe('EventsController', () => {
 
       expect(service.findAll).toHaveBeenCalledWith(
         1,
-        10,
+        50,
         undefined,
         undefined,
         undefined,

@@ -131,7 +131,10 @@ describe('IncidentsService', () => {
 
       const result = await service.create(dto);
 
-      expect(incidentModel).toHaveBeenCalledWith(dto);
+      expect(incidentModel).toHaveBeenCalledWith({
+        ...dto,
+        zoneId: new Types.ObjectId(dto.zoneId),
+      });
       expect(save).toHaveBeenCalledTimes(1);
       expect(result).toEqual(savedIncident);
     });

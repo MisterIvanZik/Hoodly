@@ -80,17 +80,23 @@ export class CreateEventDto {
   @IsOptional()
   payant?: boolean;
 
-  @ApiPropertyOptional({ description: "Coût en points pour participer (si payant)" })
+  @ApiPropertyOptional({
+    description: 'Coût en points pour participer (si payant)',
+  })
   @IsOptional()
   @IsNumber()
   pointsCout?: number;
 
-  @ApiPropertyOptional({ description: 'Points gagnés par le créateur à la validation' })
+  @ApiPropertyOptional({
+    description: 'Points gagnés par le créateur à la validation',
+  })
   @IsOptional()
   @IsNumber()
   pointsCreateur?: number;
 
-  @ApiPropertyOptional({ description: 'Points gagnés par chaque participant présent' })
+  @ApiPropertyOptional({
+    description: 'Points gagnés par chaque participant présent',
+  })
   @IsOptional()
   @IsNumber()
   pointsParticipant?: number;
@@ -100,9 +106,10 @@ export class CreateEventDto {
   @IsString()
   photoUrl?: string;
 
-  @ApiPropertyOptional({ description: "ID du document PDF d'origine (charte/décharge)" })
+  @ApiPropertyOptional({
+    description: "ID du document PDF d'origine (charte/décharge)",
+  })
   @IsOptional()
   @IsString()
   templateDocumentId?: string;
 }
-

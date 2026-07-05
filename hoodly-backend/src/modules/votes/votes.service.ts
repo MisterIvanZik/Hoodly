@@ -40,7 +40,10 @@ export class VotesService {
     const isModeratorOrAdmin =
       creator.role === 'moderator' || creator.role === 'admin';
 
-    if (!isModeratorOrAdmin && (!creator.zoneId || creator.zoneId.toString() !== createVoteDto.zoneId)) {
+    if (
+      !isModeratorOrAdmin &&
+      (!creator.zoneId || creator.zoneId.toString() !== createVoteDto.zoneId)
+    ) {
       throw new ForbiddenException(
         'Vous devez appartenir à cette zone pour y créer un vote',
       );

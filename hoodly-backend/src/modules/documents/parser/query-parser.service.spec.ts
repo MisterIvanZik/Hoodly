@@ -37,13 +37,19 @@ describe('QueryParserService', () => {
     });
 
     it('should parse FIND with multiple AND conditions', () => {
-      const result = service.parse('FIND WHERE status = "signed" AND type = "contract"');
+      const result = service.parse(
+        'FIND WHERE status = "signed" AND type = "contract"',
+      );
       expect(result).toEqual({ status: 'signed', type: 'contract' });
     });
 
     it('should throw BadRequestException on syntax error', () => {
-      expect(() => service.parse('FIND WHERE status =')).toThrow(BadRequestException);
-      expect(() => service.parse('SELECT FROM documents')).toThrow(BadRequestException);
+      expect(() => service.parse('FIND WHERE status =')).toThrow(
+        BadRequestException,
+      );
+      expect(() => service.parse('SELECT FROM documents')).toThrow(
+        BadRequestException,
+      );
     });
   });
 });

@@ -58,7 +58,7 @@ export class EventResponseDto {
   @ApiProperty({ description: 'Événement payant' })
   payant!: boolean;
 
-  @ApiPropertyOptional({ description: "Coût en points pour participer" })
+  @ApiPropertyOptional({ description: 'Coût en points pour participer' })
   pointsCout?: number;
 
   @ApiProperty({ description: 'Points gagnés par le créateur à la validation' })
@@ -67,7 +67,9 @@ export class EventResponseDto {
   @ApiProperty({ description: 'Points gagnés par chaque participant présent' })
   pointsParticipant!: number;
 
-  @ApiProperty({ description: 'IDs des participants présents après validation' })
+  @ApiProperty({
+    description: 'IDs des participants présents après validation',
+  })
   participantsPresents!: string[];
 
   @ApiPropertyOptional({ description: "URL de la photo de l'événement" })
@@ -76,7 +78,9 @@ export class EventResponseDto {
   @ApiPropertyOptional({ description: 'ID de la discussion de groupe' })
   conversationId?: string;
 
-  @ApiPropertyOptional({ description: "ID du document PDF d'origine (charte/décharge)" })
+  @ApiPropertyOptional({
+    description: "ID du document PDF d'origine (charte/décharge)",
+  })
   templateDocumentId?: string;
 
   @ApiPropertyOptional({ description: 'Date de création' })
@@ -85,4 +89,3 @@ export class EventResponseDto {
   @ApiPropertyOptional({ description: 'Date de mise à jour' })
   updatedAt?: Date;
 }
-

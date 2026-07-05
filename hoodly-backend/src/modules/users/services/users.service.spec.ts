@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 import {
   InternalServerErrorException,
   NotFoundException,
@@ -10,11 +11,13 @@ import { Conversation } from '../../conversations/schemas/conversation.schema';
 import { Post } from '../../posts/schemas/post.schema';
 import { Incident } from '../../incidents/schemas/incident.schema';
 import { Event } from '../../events/schemas/event.schema';
+import { ModeratorApplication } from '../schemas/moderator-application.schema';
 
 import { TransactionsService } from '../../transactions/services/transactions.service';
 
 describe('UsersService', () => {
   let service: UsersService;
+  let moderatorApplicationModel: any;
   let transactionsService: {
     create: jest.Mock;
   };
@@ -88,6 +91,7 @@ describe('UsersService', () => {
     postModel = { countDocuments: jest.fn() };
     incidentModel = { countDocuments: jest.fn() };
     eventModel = { countDocuments: jest.fn() };
+    moderatorApplicationModel = {};
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -111,6 +115,10 @@ describe('UsersService', () => {
         {
           provide: getModelToken(Event.name),
           useValue: eventModel,
+        },
+        {
+          provide: getModelToken(ModeratorApplication.name),
+          useValue: moderatorApplicationModel,
         },
         {
           provide: TransactionsService,
@@ -442,21 +450,20 @@ describe('UsersService', () => {
 
   describe('claimMission', () => {
     it('should claim mission successfully when conditions are met', async () => {
-      const user = makeUser({ points: 100, claimedMissions: [] });
-      const savedUser = {
-        ...user,
-        points: 110,
-        claimedMissions: ['discussion'],
-        save: jest.fn().mockResolvedValue(true),
+      const user = {
+        ...makeUser({ points: 100, claimedMissions: [] }),
+        save: jest.fn().mockImplementation(function (this: any) {
+          return Promise.resolve(this);
+        }),
       };
-      userModel.findOne.mockResolvedValue(savedUser);
+      userModel.findOne.mockResolvedValue(user);
       conversationModel.countDocuments.mockResolvedValue(1);
 
       const result = await service.claimMission('auth0|abc123', 'discussion');
 
-      expect(savedUser.save).toHaveBeenCalled();
-      expect(savedUser.points).toEqual(110);
-      expect(savedUser.claimedMissions).toContain('discussion');
+      expect(user.save).toHaveBeenCalled();
+      expect(user.points).toEqual(110);
+      expect(user.claimedMissions).toContain('discussion');
       expect(transactionsService.create).toHaveBeenCalled();
       expect(result.points).toEqual(110);
       expect(result.claimedMissions).toContain('discussion');
@@ -488,18 +495,23 @@ describe('UsersService', () => {
 
   describe('findVoisins', () => {
     it('should return neighbors in the same zone when global is false', async () => {
-      const user1 = makeUser({ _id: '1', zoneId: 'zoneA' });
-      const user2 = makeUser({ _id: '2', zoneId: 'zoneA' });
+      const user1 = makeUser({ _id: '1', zoneId: '507f191e810c19729de860bb' });
+      const user2 = makeUser({ _id: '2', zoneId: '507f191e810c19729de860bb' });
       const lean = jest.fn().mockResolvedValue([user2]);
       const limit = jest.fn().mockReturnValue({ lean });
       userModel.find.mockReturnValue({ limit });
 
-      const result = await service.findVoisins('1', 'zoneA', undefined, false);
+      const result = await service.findVoisins(
+        '1',
+        '507f191e810c19729de860bb',
+        undefined,
+        false,
+      );
 
       expect(userModel.find).toHaveBeenCalledWith({
         _id: { $ne: '1' },
         isActive: true,
-        zoneId: 'zoneA',
+        zoneId: new Types.ObjectId('507f191e810c19729de860bb'),
       });
       expect(limit).toHaveBeenCalledWith(20);
       expect(result).toEqual([
@@ -508,19 +520,24 @@ describe('UsersService', () => {
           name: user2.name,
           email: user2.email,
           picture: user2.picture,
-          zoneId: 'zoneA',
+          zoneId: '507f191e810c19729de860bb',
         },
       ]);
     });
 
     it('should return neighbors globally when global is true', async () => {
-      const user1 = makeUser({ _id: '1', zoneId: 'zoneA' });
-      const user2 = makeUser({ _id: '2', zoneId: 'zoneB' });
+      const user1 = makeUser({ _id: '1', zoneId: '507f191e810c19729de860bb' });
+      const user2 = makeUser({ _id: '2', zoneId: '507f191e810c19729de860bc' });
       const lean = jest.fn().mockResolvedValue([user2]);
       const limit = jest.fn().mockReturnValue({ lean });
       userModel.find.mockReturnValue({ limit });
 
-      const result = await service.findVoisins('1', 'zoneA', undefined, true);
+      const result = await service.findVoisins(
+        '1',
+        '507f191e810c19729de860bb',
+        undefined,
+        true,
+      );
 
       expect(userModel.find).toHaveBeenCalledWith({
         _id: { $ne: '1' },
@@ -532,7 +549,7 @@ describe('UsersService', () => {
           name: user2.name,
           email: user2.email,
           picture: user2.picture,
-          zoneId: 'zoneB',
+          zoneId: '507f191e810c19729de860bc',
         },
       ]);
     });
@@ -542,12 +559,12 @@ describe('UsersService', () => {
       const limit = jest.fn().mockReturnValue({ lean });
       userModel.find.mockReturnValue({ limit });
 
-      await service.findVoisins('1', 'zoneA', 'alex', false);
+      await service.findVoisins('1', '507f191e810c19729de860bb', 'alex', false);
 
       expect(userModel.find).toHaveBeenCalledWith({
         _id: { $ne: '1' },
         isActive: true,
-        zoneId: 'zoneA',
+        zoneId: new Types.ObjectId('507f191e810c19729de860bb'),
         $or: [
           { email: { $regex: 'alex', $options: 'i' } },
           { name: { $regex: 'alex', $options: 'i' } },

@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-export type ModeratorApplicationDocument = HydratedDocument<ModeratorApplication>;
+export type ModeratorApplicationDocument =
+  HydratedDocument<ModeratorApplication>;
 
 export enum ApplicationStatus {
   PENDING = 'pending',
@@ -17,8 +18,13 @@ export class ModeratorApplication {
   @Prop({ required: true })
   motivation!: string;
 
-  @Prop({ type: String, enum: ApplicationStatus, default: ApplicationStatus.PENDING })
+  @Prop({
+    type: String,
+    enum: ApplicationStatus,
+    default: ApplicationStatus.PENDING,
+  })
   status!: ApplicationStatus;
 }
 
-export const ModeratorApplicationSchema = SchemaFactory.createForClass(ModeratorApplication);
+export const ModeratorApplicationSchema =
+  SchemaFactory.createForClass(ModeratorApplication);

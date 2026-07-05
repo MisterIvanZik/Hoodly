@@ -23,7 +23,6 @@ import { Neo4jModule } from './modules/neo4j/neo4j.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 import { VersionModule } from './modules/version/version.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -62,4 +61,3 @@ import { VersionModule } from './modules/version/version.module';
   providers: [AppService],
 })
 export class AppModule {}
-

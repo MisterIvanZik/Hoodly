@@ -6,6 +6,11 @@ import { Contract, ContractStatus } from './schemas/contract.schema';
 import { Service, ServiceStatus } from '../services/schemas/service.schema';
 import { UsersService } from '../users/services/users.service';
 import { TransactionsService } from '../transactions/services/transactions.service';
+import { Event } from '../events/schemas/event.schema';
+import { DocumentsService } from '../documents/documents.service';
+import { EmailsService } from '../emails/emails.service';
+import { UploadsService } from '../uploads/services/uploads.service';
+import { ConversationsService } from '../conversations/services/conversations.service';
 import {
   NotFoundException,
   BadRequestException,
@@ -25,10 +30,37 @@ describe('ContractsService', () => {
 
   const mockUsersService = {
     findById: jest.fn(),
+    updatePoints: jest.fn(),
   };
 
   const mockTransactionsService = {
     transferPoints: jest.fn(),
+    create: jest.fn(),
+  };
+
+  const mockEventModel = {
+    findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+  };
+
+  const mockDocumentsService = {
+    create: jest.fn(),
+    generatePDF: jest.fn(),
+    findById: jest.fn().mockResolvedValue({ _id: 'doc-123' }),
+  };
+
+  const mockEmailsService = {
+    sendContractSignedEmail: jest.fn(),
+    sendContractCreatedEmail: jest.fn(),
+  };
+
+  const mockUploadsService = {
+    uploadPDF: jest.fn(),
+  };
+
+  const mockConversationsService = {
+    sendSystemMessage: jest.fn(),
+    findByServiceId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -43,8 +75,18 @@ describe('ContractsService', () => {
       terms: 'These are the terms of the contract.',
       pricePoints: 50,
       status: ContractStatus.PENDING,
-      clientSignature: { signed: false },
-      providerSignature: { signed: false },
+      clientSignature: {
+        signed: false,
+        otpHash:
+          'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        otpExpiresAt: new Date(Date.now() + 3600000),
+      },
+      providerSignature: {
+        signed: false,
+        otpHash:
+          'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        otpExpiresAt: new Date(Date.now() + 3600000),
+      },
       save: jest.fn().mockImplementation(function (this: any) {
         return Promise.resolve(this);
       }),
@@ -77,6 +119,7 @@ describe('ContractsService', () => {
     const queryChain = {
       populate: jest.fn().mockReturnThis(),
       sort: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue(mockContractDoc),
     };
     mockContractModel.findById.mockReturnValue(queryChain);
@@ -99,12 +142,32 @@ describe('ContractsService', () => {
           useValue: mockServiceModel,
         },
         {
+          provide: getModelToken(Event.name),
+          useValue: mockEventModel,
+        },
+        {
           provide: UsersService,
           useValue: mockUsersService,
         },
         {
           provide: TransactionsService,
           useValue: mockTransactionsService,
+        },
+        {
+          provide: DocumentsService,
+          useValue: mockDocumentsService,
+        },
+        {
+          provide: EmailsService,
+          useValue: mockEmailsService,
+        },
+        {
+          provide: UploadsService,
+          useValue: mockUploadsService,
+        },
+        {
+          provide: ConversationsService,
+          useValue: mockConversationsService,
         },
       ],
     }).compile();
@@ -266,11 +329,17 @@ describe('ContractsService', () => {
       mockContractDoc.clientId = userId;
       mockContractDoc.providerId = new Types.ObjectId();
       mockContractDoc.status = ContractStatus.PENDING;
-      mockContractDoc.clientSignature = { signed: false };
+      mockContractDoc.clientSignature = {
+        signed: false,
+        otpHash:
+          'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        otpExpiresAt: new Date(Date.now() + 3600000),
+      };
 
       const signDto = {
         ipAddress: '192.168.1.1',
         signatureMetadata: 'UserAgent String',
+        otp: 'abc',
       };
 
       const result = await service.sign(
@@ -290,11 +359,17 @@ describe('ContractsService', () => {
       mockContractDoc.clientId = new Types.ObjectId();
       mockContractDoc.providerId = userId;
       mockContractDoc.status = ContractStatus.PENDING;
-      mockContractDoc.providerSignature = { signed: false };
+      mockContractDoc.providerSignature = {
+        signed: false,
+        otpHash:
+          'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        otpExpiresAt: new Date(Date.now() + 3600000),
+      };
 
       const signDto = {
         ipAddress: '192.168.1.1',
         signatureMetadata: 'UserAgent String',
+        otp: 'abc',
       };
 
       const result = await service.sign(
@@ -313,9 +388,16 @@ describe('ContractsService', () => {
       mockContractDoc.providerId = userId;
       mockContractDoc.status = ContractStatus.PENDING;
       mockContractDoc.clientSignature = { signed: true };
-      mockContractDoc.providerSignature = { signed: false };
+      mockContractDoc.providerSignature = {
+        signed: false,
+        otpHash:
+          'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        otpExpiresAt: new Date(Date.now() + 3600000),
+      };
 
-      const signDto = {};
+      const signDto = {
+        otp: 'abc',
+      };
 
       const result = await service.sign(
         mockContractDoc._id.toString(),
@@ -330,9 +412,9 @@ describe('ContractsService', () => {
     it('should throw NotFoundException if contract does not exist', async () => {
       mockContractModel.findById().exec.mockResolvedValueOnce(null);
 
-      await expect(service.sign('any-id', 'any-user', {} as any)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.sign('any-id', 'any-user', {} as any),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if contract is not PENDING', async () => {
@@ -364,7 +446,11 @@ describe('ContractsService', () => {
       mockContractDoc.clientSignature = { signed: true };
 
       await expect(
-        service.sign(mockContractDoc._id.toString(), userId.toString(), {} as any),
+        service.sign(
+          mockContractDoc._id.toString(),
+          userId.toString(),
+          {} as any,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -375,7 +461,11 @@ describe('ContractsService', () => {
       mockContractDoc.providerSignature = { signed: true };
 
       await expect(
-        service.sign(mockContractDoc._id.toString(), userId.toString(), {} as any),
+        service.sign(
+          mockContractDoc._id.toString(),
+          userId.toString(),
+          {} as any,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });

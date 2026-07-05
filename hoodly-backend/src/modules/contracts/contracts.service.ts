@@ -110,11 +110,10 @@ export class ContractsService {
 
     if (serviceId) {
       const service = await this.serviceModel.findById(serviceId);
-      if (service) {
-        service.contractId = savedContract._id;
-        service.statut = ServiceStatus.EN_COURS;
-        await service.save();
-      }
+      if (!service) throw new NotFoundException('Service introuvable');
+      service.contractId = savedContract._id;
+      service.statut = ServiceStatus.EN_COURS;
+      await service.save();
     }
 
     return savedContract;
@@ -552,7 +551,7 @@ export class ContractsService {
         DocumentStatus.ARCHIVED,
       );
 
-      contract.signedDocumentId = finalDocument._id as Types.ObjectId;
+      contract.signedDocumentId = finalDocument._id;
 
       const subject = `Contrat signe et archive : ${contract.title}`;
       const emailBody = `Bonjour,\n\nLe contrat "${contract.title}" a ete signe avec succes par les deux parties.\n\nVous trouverez le PDF final contenant la signature et le certificat à l'adresse suivante :\n${fileUrl}\n\nL'equipe Hoodly.`;

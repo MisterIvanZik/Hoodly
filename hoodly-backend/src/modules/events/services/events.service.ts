@@ -241,7 +241,8 @@ export class EventsService {
     }
 
     if (event.payant && event.pointsCout && event.pointsCout > 0) {
-      const totalPointsToTransfer = event.pointsCout * event.participants.length;
+      const totalPointsToTransfer =
+        event.pointsCout * event.participants.length;
       if (totalPointsToTransfer > 0) {
         await this.transactionsService.awardPoints(
           createurId,

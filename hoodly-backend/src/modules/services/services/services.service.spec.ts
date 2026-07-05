@@ -4,6 +4,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Service } from '../schemas/service.schema';
 import { User } from '../../users/schemas/user.schema';
 import { ConversationsService } from '../../conversations/services/conversations.service';
+import { TransactionsService } from '../../transactions/services/transactions.service';
+import { ContractsService } from '../../contracts/contracts.service';
 
 describe('ServicesService', () => {
   let service: ServicesService;
@@ -11,6 +13,8 @@ describe('ServicesService', () => {
   const mockServiceModel = {};
   const mockUserModel = {};
   const mockConversationsService = {};
+  const mockTransactionsService = {};
+  const mockContractsService = {};
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,6 +31,14 @@ describe('ServicesService', () => {
         {
           provide: ConversationsService,
           useValue: mockConversationsService,
+        },
+        {
+          provide: TransactionsService,
+          useValue: mockTransactionsService,
+        },
+        {
+          provide: ContractsService,
+          useValue: mockContractsService,
         },
       ],
     }).compile();

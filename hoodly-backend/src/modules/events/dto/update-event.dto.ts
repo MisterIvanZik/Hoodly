@@ -44,9 +44,10 @@ export class UpdateEventDto {
   @IsEnum(EventStatus)
   statut?: EventStatus;
 
-  @ApiPropertyOptional({ description: "ID du document PDF d'origine (charte/décharge)" })
+  @ApiPropertyOptional({
+    description: "ID du document PDF d'origine (charte/décharge)",
+  })
   @IsOptional()
   @IsString()
   templateDocumentId?: string;
 }
-

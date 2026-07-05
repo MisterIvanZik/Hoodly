@@ -67,7 +67,11 @@ describe('VotesController', () => {
       const result = await controller.findAllByZone('zone-id', user);
 
       expect(result).toEqual([]);
-      expect(mockVotesService.findAllByZone).toHaveBeenCalledWith('zone-id', 'user-id', 'user');
+      expect(mockVotesService.findAllByZone).toHaveBeenCalledWith(
+        'zone-id',
+        'user-id',
+        'user',
+      );
     });
   });
 

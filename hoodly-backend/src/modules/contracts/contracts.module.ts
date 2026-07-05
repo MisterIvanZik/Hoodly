@@ -11,7 +11,6 @@ import { DocumentsModule } from '../documents/documents.module';
 import { UploadsModule } from '../uploads/uploads.module';
 import { ConversationsModule } from '../conversations/conversations.module';
 
-
 @Module({
   imports: [
     MongooseModule.forFeature([

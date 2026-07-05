@@ -51,7 +51,9 @@ export class CreateContractDto {
   @IsNotEmpty()
   clientId!: string;
 
-  @ApiPropertyOptional({ description: 'ID du service associé dans le catalogue' })
+  @ApiPropertyOptional({
+    description: 'ID du service associé dans le catalogue',
+  })
   @IsMongoId()
   @IsOptional()
   serviceId?: string;
@@ -81,11 +83,13 @@ export class CreateContractDto {
   @Min(0)
   pricePoints!: number;
 
-  @ApiPropertyOptional({ description: 'Zones de signature', type: [SignatureZoneDto] })
+  @ApiPropertyOptional({
+    description: 'Zones de signature',
+    type: [SignatureZoneDto],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SignatureZoneDto)
   @IsOptional()
   signatureZones?: SignatureZoneDto[];
 }
-

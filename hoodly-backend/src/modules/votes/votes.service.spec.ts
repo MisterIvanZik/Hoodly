@@ -185,7 +185,11 @@ describe('VotesService', () => {
     it('should return all votes for a zone', async () => {
       const zoneId = new Types.ObjectId();
       const mockUserId = new Types.ObjectId().toString();
-      const result = await service.findAllByZone(zoneId.toString(), mockUserId, 'user');
+      const result = await service.findAllByZone(
+        zoneId.toString(),
+        mockUserId,
+        'user',
+      );
 
       expect(result).toEqual([mockVoteDoc]);
     });

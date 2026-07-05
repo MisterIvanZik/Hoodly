@@ -46,25 +46,60 @@ describe('EventsService', () => {
     };
   };
 
-  const toExpectedDto = (event: ReturnType<typeof makeEvent>) => ({
+  const toExpectedDto = (event: any) => ({
     id: event._id.toString(),
+    createurId: event.createurId?.toString() ?? '',
     titre: event.titre,
+    description: event.description,
     categorie: event.categorie,
     date: event.date,
     lieu: event.lieu,
     capacite: event.capacite,
     statut: event.statut,
+    interesses: (event.interesses ?? []).map((i: any) => i.toString()),
+    participants: (event.participants ?? []).map((p: any) => p.toString()),
+    participantsFull: undefined,
+    payant: event.payant ?? false,
+    pointsCout: event.pointsCout,
+    pointsCreateur: event.pointsCreateur ?? 10,
+    pointsParticipant: event.pointsParticipant ?? 5,
+    participantsPresents: (event.participantsPresents ?? []).map((p: any) =>
+      p.toString(),
+    ),
+    photoUrl: event.photoUrl,
+    conversationId: event.conversationId?.toString(),
+    templateDocumentId: event.templateDocumentId?.toString(),
     createdAt: event.createdAt,
     updatedAt: event.updatedAt,
   });
 
+  const mockQuery = (result: any) => {
+    const query: any = {
+      skip: jest.fn().mockImplementation(() => query),
+      limit: jest.fn().mockImplementation(() => query),
+      sort: jest.fn().mockImplementation(() => query),
+      populate: jest.fn().mockImplementation(() => query),
+      lean: jest.fn().mockImplementation(() => Promise.resolve(result)),
+      then: jest
+        .fn()
+        .mockImplementation((onfulfilled) =>
+          Promise.resolve(result).then(onfulfilled),
+        ),
+    };
+    return query;
+  };
+
   beforeEach(async () => {
     const modelConstructor = jest.fn();
     eventModel = modelConstructor as any;
-    eventModel.find = jest.fn();
-    eventModel.findById = jest.fn();
-    eventModel.findByIdAndUpdate = jest.fn();
-    eventModel.findByIdAndDelete = jest.fn();
+    eventModel.find = jest.fn().mockImplementation(() => mockQuery([]));
+    eventModel.findById = jest.fn().mockImplementation(() => mockQuery(null));
+    eventModel.findByIdAndUpdate = jest
+      .fn()
+      .mockImplementation(() => mockQuery(null));
+    eventModel.findByIdAndDelete = jest
+      .fn()
+      .mockImplementation(() => mockQuery(null));
     eventModel.countDocuments = jest.fn();
 
     userModel = {
@@ -73,7 +108,7 @@ describe('EventsService', () => {
     };
 
     conversationsService = {
-      createForEvent: jest.fn(),
+      createForEvent: jest.fn().mockResolvedValue({ _id: 'conv-123' }),
       addParticipantToEvent: jest.fn(),
       removeParticipantFromEvent: jest.fn(),
       sendSystemMessage: jest.fn(),
@@ -135,16 +170,27 @@ describe('EventsService', () => {
         lieu: {},
         capacite: 30,
       };
-      const savedEvent = makeEvent(eventData);
+      const savedEvent = {
+        ...makeEvent(eventData),
+        save: jest.fn().mockImplementation(function (this: any) {
+          return Promise.resolve(this);
+        }),
+      };
       const save = jest.fn().mockResolvedValue(savedEvent);
       eventModel.mockImplementation(() => ({
         ...savedEvent,
         save,
       }));
 
-      const result = await service.create(eventData, 'user-123');
+      const result = await service.create(
+        eventData,
+        '507f191e810c19729de860ee',
+      );
 
-      expect(eventModel).toHaveBeenCalledWith({ ...eventData, createurId: expect.any(Object) });
+      expect(eventModel).toHaveBeenCalledWith({
+        ...eventData,
+        createurId: expect.any(Object),
+      });
       expect(save).toHaveBeenCalled();
       expect(result).toEqual(toExpectedDto(savedEvent));
     });
@@ -162,9 +208,9 @@ describe('EventsService', () => {
         save,
       }));
 
-      await expect(service.create(eventData, 'user-123')).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(
+        service.create(eventData, '507f191e810c19729de860ee'),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
@@ -177,12 +223,8 @@ describe('EventsService', () => {
         categorie: 'Social',
       });
 
-      const lean = jest.fn().mockResolvedValue([e1, e2]);
-      const sort = jest.fn().mockReturnValue({ lean });
-      const limit = jest.fn().mockReturnValue({ sort });
-      const skip = jest.fn().mockReturnValue({ limit });
-
-      eventModel.find.mockReturnValue({ skip });
+      const query = mockQuery([e1, e2]);
+      eventModel.find.mockReturnValue(query);
       eventModel.countDocuments.mockResolvedValue(2);
 
       const result = await service.findAll(
@@ -201,9 +243,9 @@ describe('EventsService', () => {
         categorie: 'Ecologie',
         statut: EventStatus.PLANNED,
       });
-      expect(skip).toHaveBeenCalledWith(5);
-      expect(limit).toHaveBeenCalledWith(5);
-      expect(sort).toHaveBeenCalledWith({ date: -1 });
+      expect(query.skip).toHaveBeenCalledWith(5);
+      expect(query.limit).toHaveBeenCalledWith(5);
+      expect(query.sort).toHaveBeenCalledWith({ date: 1 });
       expect(result).toEqual({
         events: [toExpectedDto(e1), toExpectedDto(e2)],
         total: 2,
@@ -215,12 +257,8 @@ describe('EventsService', () => {
 
     it('should work with empty query when no filters are passed', async () => {
       const e = makeEvent();
-      const lean = jest.fn().mockResolvedValue([e]);
-      const sort = jest.fn().mockReturnValue({ lean });
-      const limit = jest.fn().mockReturnValue({ sort });
-      const skip = jest.fn().mockReturnValue({ limit });
-
-      eventModel.find.mockReturnValue({ skip });
+      const query = mockQuery([e]);
+      eventModel.find.mockReturnValue(query);
       eventModel.countDocuments.mockResolvedValue(1);
 
       const result = await service.findAll();
@@ -239,7 +277,7 @@ describe('EventsService', () => {
   describe('findById', () => {
     it('should return event DTO if found', async () => {
       const e = makeEvent();
-      eventModel.findById.mockResolvedValue(e);
+      eventModel.findById.mockReturnValue(mockQuery(e));
 
       const result = await service.findById(e._id);
 
@@ -248,7 +286,7 @@ describe('EventsService', () => {
     });
 
     it('should return null if not found', async () => {
-      eventModel.findById.mockResolvedValue(null);
+      eventModel.findById.mockReturnValue(mockQuery(null));
 
       const result = await service.findById('missing');
 
@@ -290,7 +328,9 @@ describe('EventsService', () => {
 
       expect(eventModel.findById).toHaveBeenCalledWith(e._id);
       expect(eventModel.findByIdAndDelete).toHaveBeenCalledWith(e._id);
-      expect(result).toEqual({ message: 'Événement annulé et participants remboursés' });
+      expect(result).toEqual({
+        message: 'Événement annulé et participants remboursés',
+      });
     });
 
     it('should throw NotFoundException if event to delete does not exist', async () => {

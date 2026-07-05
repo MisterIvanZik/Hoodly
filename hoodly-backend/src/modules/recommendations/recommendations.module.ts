@@ -5,7 +5,9 @@ import { RecommendationsService } from './recommendations.service';
 import { RecommendationsController } from './recommendations.controller';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
+  ],
   providers: [RecommendationsService],
   controllers: [RecommendationsController],
 })

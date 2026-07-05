@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Injectable,
   NotFoundException,
@@ -80,7 +76,9 @@ export class ConversationsService {
   }
 
   async deleteByEventId(eventId: string): Promise<void> {
-    await this.conversationModel.deleteOne({ eventId: new Types.ObjectId(eventId) });
+    await this.conversationModel.deleteOne({
+      eventId: new Types.ObjectId(eventId),
+    });
   }
 
   async removeParticipantFromEvent(

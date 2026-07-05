@@ -37,4 +37,3 @@ export class SignContractDto {
   @IsString()
   ipAddress?: string;
 }
-

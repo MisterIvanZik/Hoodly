@@ -1,4 +1,8 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -44,8 +48,12 @@ export class EmailsService {
       this.logger.log(`E-mail envoyé avec succès à ${to}`);
       return true;
     } catch (err: any) {
-      this.logger.error(`Erreur lors de l'envoi de l'e-mail à ${to} : ${err.message}`);
-      throw new InternalServerErrorException(`Échec de l'envoi de l'e-mail : ${err.message}`);
+      this.logger.error(
+        `Erreur lors de l'envoi de l'e-mail à ${to} : ${err.message}`,
+      );
+      throw new InternalServerErrorException(
+        `Échec de l'envoi de l'e-mail : ${err.message}`,
+      );
     }
   }
 }

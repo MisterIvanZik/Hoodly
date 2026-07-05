@@ -84,7 +84,7 @@ export class EventsController {
   @Post(':id/interet')
   @ApiOperation({ summary: "Toggler l'intérêt pour un événement (swipe)" })
   @ApiParam({ name: 'id', description: 'ID MongoDB' })
-  @ApiResponse({ status: 200, description: "{ interested: boolean }" })
+  @ApiResponse({ status: 200, description: '{ interested: boolean }' })
   @ApiResponse({ status: 404, description: 'Événement introuvable' })
   async toggleInteret(
     @Param('id', MongoIdValidationPipe) id: string,
@@ -96,7 +96,7 @@ export class EventsController {
   @Post(':id/participer')
   @ApiOperation({ summary: "S'inscrire / se désinscrire d'un événement" })
   @ApiParam({ name: 'id', description: 'ID MongoDB' })
-  @ApiResponse({ status: 200, description: "{ participating: boolean }" })
+  @ApiResponse({ status: 200, description: '{ participating: boolean }' })
   @ApiResponse({ status: 400, description: 'Événement complet ou créateur' })
   @ApiResponse({ status: 404, description: 'Événement introuvable' })
   async participer(
