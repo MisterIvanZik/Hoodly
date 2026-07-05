@@ -271,7 +271,7 @@ export default function VotesPage() {
                     <div className="flex gap-2 shrink-0">
                       {isActive && (
                         <Button
-                          size="xs"
+                          size="sm"
                           variant="outline"
                           className="border-gray-850 hover:bg-gray-800 text-[10px] h-7 px-2.5 font-bold"
                           onClick={() => id && handleClose(id)}
@@ -282,7 +282,7 @@ export default function VotesPage() {
                         </Button>
                       )}
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="ghost"
                         className="text-gray-500 hover:text-red-400 hover:bg-red-500/10 text-[10px] h-7 px-2.5 font-bold"
                         onClick={() => id && handleDelete(id)}

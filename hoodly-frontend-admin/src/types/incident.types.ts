@@ -17,6 +17,8 @@ export interface IIncidentResponse {
   signaledPar: string | IUserResponse;
   createdAt: string;
   updatedAt: string;
+  contexte?: string;
+  type?: string;
 }
 
 export interface IUpdateIncidentStatutDto {

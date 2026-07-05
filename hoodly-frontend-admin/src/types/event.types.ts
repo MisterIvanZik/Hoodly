@@ -12,6 +12,10 @@ export interface IEventResponse {
   organisateurId: string;
   membresPresents: string[];
   createdAt: string;
+  date?: string;
+  lieu?: {
+    adresse?: string;
+  };
 }
 
 export interface IEventsListResponse {
