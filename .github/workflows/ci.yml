@@ -6,12 +6,10 @@ on:
   pull_request:
     branches: [ develop ]
 
-# Optimisation 2026 : Annule les anciens builds en cours si un nouveau commit est poussé sur la même branche
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Bonne pratique de sécurité OWASP : Permissions minimales (lecture seule sur le code)
 permissions:
   contents: read
 
@@ -40,6 +38,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
 
       - name: Lint code
         run: pnpm run lint
@@ -75,6 +77,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
+
       - name: Lint code
         run: pnpm run lint
 
@@ -105,6 +111,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
 
       - name: Lint code
         run: pnpm run lint
