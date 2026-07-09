@@ -21,7 +21,6 @@ import {
   Vote,
   Shield,
 } from "lucide-react"
-import { Bell } from "../animate-ui/icons/bell"
 import {
   Sidebar,
   SidebarContent,
@@ -176,10 +175,6 @@ export default function AppLayout() {
                 title={i18n.language.startsWith('fr') ? 'Switch to English' : 'Passer en Français'}
               >
                 {i18n.language.startsWith('fr') ? 'EN' : 'FR'}
-              </button>
-
-              <button className="relative rounded-full p-2 text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 shrink-0">
-                <Bell animateOnHover className="h-5 w-5" />
               </button>
 
               <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-800" />
