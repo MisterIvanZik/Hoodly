@@ -47,6 +47,12 @@ export class IncidentsController {
     return this.incidentsService.findAll(zoneId, signaledPar);
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Récupérer un incident par ID' })
+  findOne(@Param('id') id: string): Promise<Incident> {
+    return this.incidentsService.findById(id);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Créer un incident' })
   @ApiResponse({ status: 201, description: 'Incident créé' })

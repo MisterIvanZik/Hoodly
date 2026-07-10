@@ -59,6 +59,14 @@ public class ApiClient {
         }
     }
 
+    public Incident getIncident(String id) throws Exception {
+        Request request = authorizedRequest("/api/incidents/" + id).get().build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new Exception("HTTP " + response.code());
+            return mapper.readValue(response.body().string(), Incident.class);
+        }
+    }
+
     public void patchIncidentStatut(String id, String statut) throws Exception {
         String json = mapper.writeValueAsString(Collections.singletonMap("statut", statut));
         RequestBody body = RequestBody.create(json, JSON);

@@ -68,7 +68,11 @@
                     </VBox>
                 </HBox>
 
-                <Label text="Incidents récents" styleClass="section-title"/>
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Label text="Incidents récents" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <Button text="+ Nouvel incident" styleClass="btn-apply"
+                            onAction="#handleNewIncident" prefHeight="36"/>
+                </HBox>
                 <TableView fx:id="incidentsTable" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="typeCol" text="Type" prefWidth="120"/>

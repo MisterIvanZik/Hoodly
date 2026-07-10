@@ -17,6 +17,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
@@ -589,6 +590,70 @@ public class DashboardController {
             } catch (Exception e) {
                 showAlert("Erreur", "Désinstallation impossible : " + e.getMessage());
             }
+        });
+    }
+
+    @FXML
+    private void handleNewIncident() {
+        Dialog<Incident> dialog = new Dialog<>();
+        dialog.setTitle("Nouvel incident");
+        dialog.setHeaderText("Signaler un incident dans le quartier");
+
+        ButtonType creerBtn = new ButtonType("Créer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(creerBtn, ButtonType.CANCEL);
+
+        ComboBox<String> typeBox = new ComboBox<>();
+        typeBox.getItems().addAll("Voirie", "Propreté", "Éclairage", "Bruit", "Sécurité", "Autre");
+        typeBox.setValue("Voirie");
+        typeBox.setMaxWidth(Double.MAX_VALUE);
+
+        TextArea descArea = new TextArea();
+        descArea.setPromptText("Décrivez l'incident...");
+        descArea.setPrefRowCount(3);
+        descArea.setWrapText(true);
+
+        ComboBox<String> prioriteBox = new ComboBox<>();
+        prioriteBox.getItems().addAll("normale", "haute", "urgente");
+        prioriteBox.setValue("normale");
+        prioriteBox.setMaxWidth(Double.MAX_VALUE);
+
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(16));
+        grid.add(new Label("Type :"), 0, 0);
+        grid.add(typeBox, 1, 0);
+        grid.add(new Label("Description :"), 0, 1);
+        grid.add(descArea, 1, 1);
+        grid.add(new Label("Priorité :"), 0, 2);
+        grid.add(prioriteBox, 1, 2);
+        javafx.scene.layout.ColumnConstraints col1 = new javafx.scene.layout.ColumnConstraints(90);
+        javafx.scene.layout.ColumnConstraints col2 = new javafx.scene.layout.ColumnConstraints(280);
+        grid.getColumnConstraints().addAll(col1, col2);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().lookupButton(creerBtn).disableProperty()
+            .bind(descArea.textProperty().isEmpty());
+
+        dialog.setResultConverter(btn -> {
+            if (btn != creerBtn) return null;
+            Incident i = new Incident();
+            i.setType(typeBox.getValue());
+            i.setDescription(descArea.getText().trim());
+            i.setPriorite(prioriteBox.getValue());
+            i.setStatut("signale");
+            i.setZoneId(AppContext.getInstance().getZoneId());
+            return i;
+        });
+
+        dialog.showAndWait().ifPresent(incident -> {
+            incidentDao.insertOffline(incident);
+            if (networkMonitor.isOnline()) {
+                syncService.syncNow();
+            } else {
+                showAlert("Incident enregistré", "L'incident sera synchronisé dès la reconnexion.");
+            }
+            loadIncidents();
         });
     }
 
