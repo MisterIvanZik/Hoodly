@@ -16,6 +16,7 @@ import {
   Transaction,
   TransactionDocument,
 } from '../transactions/schemas/transaction.schema';
+import { Neo4jService } from '../neo4j/neo4j.service';
 
 @Injectable()
 export class RgpdService {
@@ -30,6 +31,7 @@ export class RgpdService {
     private readonly incidentModel: Model<IncidentDocument>,
     @InjectModel(Transaction.name)
     private readonly transactionModel: Model<TransactionDocument>,
+    private readonly neo4jService: Neo4jService,
   ) {}
 
   async exportUserData(userId: string) {
@@ -119,6 +121,14 @@ export class RgpdService {
       })
       .exec();
 
+    try {
+      await this.neo4jService.run(
+        'MATCH (u:User {id: $userId}) DETACH DELETE u',
+        { userId },
+      );
+    } catch (err) {
+      console.error('Neo4j cleanup failed during anonymization:', err);
+    }
     return {
       message: 'Données anonymisées avec succès conformément aux règles RGPD.',
     };
