@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { getModelToken } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 import { Event, EventStatus } from '../schemas/event.schema';
 import { User } from '../../users/schemas/user.schema';
 import { ConversationsService } from '../../conversations/services/conversations.service';
@@ -9,6 +10,8 @@ import { Neo4jService } from '../../neo4j/neo4j.service';
 import {
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 describe('EventsService', () => {
@@ -341,4 +344,58 @@ describe('EventsService', () => {
       );
     });
   });
+
+  describe('toggleInteret', () => {
+    it('should add interest if not already interested', async () => {
+      const e = makeEvent({ interesses: [] });
+      eventModel.findById.mockResolvedValue(e);
+
+      const result = await service.toggleInteret(e._id, '507f191e810c19729de860ee');
+
+      expect(result).toEqual({ interested: true });
+      expect(neo4jService.syncInteret).toHaveBeenCalled();
+    });
+
+    it('should remove interest if already interested', async () => {
+      const userId = new Types.ObjectId();
+      const e = makeEvent({ interesses: [userId] });
+      eventModel.findById.mockResolvedValue(e);
+
+      const result = await service.toggleInteret(e._id, userId.toString());
+
+      expect(result).toEqual({ interested: false });
+      expect(neo4jService.removeInteret).toHaveBeenCalled();
+    });
+  });
+
+  describe('participer', () => {
+    it('should throw BadRequestException if user is creator', async () => {
+      const userId = new Types.ObjectId();
+      const e = makeEvent({ createurId: userId });
+      eventModel.findById.mockResolvedValue(e);
+
+      await expect(service.participer(e._id, userId.toString())).rejects.toThrow(BadRequestException);
+    });
+
+    it('should register participant if capacity not exceeded', async () => {
+      const e = makeEvent({ createurId: new Types.ObjectId(), participants: [], capacite: 5 });
+      eventModel.findById.mockResolvedValue(e);
+
+      const result = await service.participer(e._id, new Types.ObjectId().toString());
+
+      expect(result).toEqual({ participating: true });
+      expect(neo4jService.syncParticipation).toHaveBeenCalled();
+    });
+  });
+
+  describe('valider', () => {
+    it('should throw ForbiddenException if user is not creator', async () => {
+      const creatorId = new Types.ObjectId();
+      const e = makeEvent({ createurId: creatorId });
+      eventModel.findById.mockResolvedValue(e);
+
+      await expect(service.valider(e._id, 'not-creator', [])).rejects.toThrow(ForbiddenException);
+    });
+  });
 });
+

@@ -226,6 +226,7 @@ describe('UsersService', () => {
     });
 
     it('should handle welcome transaction error gracefully when syncing a new user', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       userModel.findOne.mockResolvedValue(null);
       const savedUser = makeUser({ points: 100 });
       const save = jest.fn().mockResolvedValue(savedUser);
@@ -244,6 +245,7 @@ describe('UsersService', () => {
       expect(userModel).toHaveBeenCalled();
       expect(save).toHaveBeenCalled();
       expect(result).toBeDefined();
+      warnSpy.mockRestore();
     });
   });
 

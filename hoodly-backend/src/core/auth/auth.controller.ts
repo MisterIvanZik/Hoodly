@@ -18,7 +18,8 @@ import { UsersService } from '../../modules/users/services/users.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { UserResponseDto } from '../../modules/users/dto/user-response.dto';
 import type { Request } from 'express';
-import { UpdateProfileDto } from 'src/modules/users/dto/update-profile.dto';
+import { UpdateProfileDto } from '../../modules/users/dto/update-profile.dto';
+
 
 const AUTH0_NAMESPACE = 'https://api.hoodly.fr';
 

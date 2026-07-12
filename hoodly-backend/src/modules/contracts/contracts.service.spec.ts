@@ -383,6 +383,7 @@ describe('ContractsService', () => {
     });
 
     it('should set status to SIGNED when both sign', async () => {
+      const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const userId = new Types.ObjectId();
       mockContractDoc.clientId = new Types.ObjectId();
       mockContractDoc.providerId = userId;
@@ -407,6 +408,7 @@ describe('ContractsService', () => {
 
       expect(result.providerSignature.signed).toBe(true);
       expect(result.status).toBe(ContractStatus.SIGNED);
+      errSpy.mockRestore();
     });
 
     it('should throw NotFoundException if contract does not exist', async () => {

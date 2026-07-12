@@ -6,6 +6,7 @@ import { v2 as cloudinary } from 'cloudinary';
 jest.mock('cloudinary', () => ({
   v2: {
     config: jest.fn(),
+    url: jest.fn().mockReturnValue('https://cloudinary.com/signed.jpg'),
     uploader: {
       upload_stream: jest.fn(),
     },
@@ -119,6 +120,96 @@ describe('UploadsService', () => {
         'Cloudinary failed',
       );
       expect(mockEnd).toHaveBeenCalledWith(mockFile.buffer);
+    });
+  });
+
+  describe('downloadFile', () => {
+    let originalFetch: any;
+
+    beforeAll(() => {
+      originalFetch = global.fetch;
+    });
+
+    afterAll(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('should download direct file if not in cloudinary upload path', async () => {
+      const fileUrl = 'https://some-s3-bucket.s3.amazonaws.com/image.jpg';
+      const mockBuffer = Buffer.from('direct-pdf');
+      
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        arrayBuffer: jest.fn().mockResolvedValue(mockBuffer),
+      };
+      
+      global.fetch = jest.fn().mockResolvedValue(mockResponse);
+
+      const result = await service.downloadFile(fileUrl);
+
+      expect(result).toEqual(mockBuffer);
+      expect(global.fetch).toHaveBeenCalledWith(fileUrl);
+    });
+
+    it('should download signed url if file is in cloudinary upload path', async () => {
+      const fileUrl = 'https://res.cloudinary.com/cloud/image/upload/v12345/folder/image.jpg';
+      const mockBuffer = Buffer.from('cloudinary-pdf');
+
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        arrayBuffer: jest.fn().mockResolvedValue(mockBuffer),
+      };
+
+      global.fetch = jest.fn().mockResolvedValue(mockResponse);
+
+      const result = await service.downloadFile(fileUrl);
+
+      expect(result).toEqual(mockBuffer);
+      expect(cloudinary.url).toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledWith('https://cloudinary.com/signed.jpg');
+    });
+
+    it('should use fallback direct url if signed url download fails', async () => {
+      const fileUrl = 'https://res.cloudinary.com/cloud/image/upload/v12345/folder/image.jpg';
+      const mockBuffer = Buffer.from('fallback-pdf');
+
+      const mockResponseFail = {
+        ok: false,
+        status: 403,
+      };
+
+      const mockResponseSuccess = {
+        ok: true,
+        status: 200,
+        arrayBuffer: jest.fn().mockResolvedValue(mockBuffer),
+      };
+
+      global.fetch = jest.fn()
+        .mockResolvedValueOnce(mockResponseFail)
+        .mockResolvedValueOnce(mockResponseSuccess);
+
+      const result = await service.downloadFile(fileUrl);
+
+      expect(result).toEqual(mockBuffer);
+      expect(global.fetch).toHaveBeenNthCalledWith(1, 'https://cloudinary.com/signed.jpg');
+      expect(global.fetch).toHaveBeenNthCalledWith(2, fileUrl);
+    });
+
+    it('should throw error if both signed and fallback download fail', async () => {
+      const fileUrl = 'https://res.cloudinary.com/cloud/image/upload/v12345/folder/image.jpg';
+
+      const mockResponseFail = {
+        ok: false,
+        status: 403,
+      };
+
+      global.fetch = jest.fn()
+        .mockResolvedValueOnce(mockResponseFail)
+        .mockResolvedValueOnce(mockResponseFail);
+
+      await expect(service.downloadFile(fileUrl)).rejects.toThrow();
     });
   });
 });
