@@ -21,6 +21,12 @@ export class IncidentsService {
       .exec() as unknown as Incident[];
   }
 
+  async findById(id: string): Promise<Incident> {
+    const incident = await this.incidentModel.findById(id).lean().exec();
+    if (!incident) throw new NotFoundException(`Incident ${id} introuvable`);
+    return incident as unknown as Incident;
+  }
+
   async create(data: CreateIncidentDto): Promise<Incident> {
     const incidentData: any = { ...data };
     if (data.assignedTo) {

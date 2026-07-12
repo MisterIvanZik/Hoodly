@@ -155,6 +155,17 @@ public class IncidentDao {
         }
     }
 
+    public String getSyncedAt(String id) {
+        String sql = "SELECT synced_at FROM incidents WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getString("synced_at") : null;
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
     public void deleteById(String id) {
         String sql = "DELETE FROM incidents WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
