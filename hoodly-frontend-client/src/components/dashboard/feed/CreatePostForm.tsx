@@ -72,7 +72,7 @@ export function CreatePostForm({ zoneId }: { zoneId: string }) {
   }
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 rounded-2xl border-none shadow-sm hover:shadow-md transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-black/[0.04] dark:ring-white/[0.04]">
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-4 pb-2">
           <div className="flex gap-4">
@@ -107,7 +107,7 @@ export function CreatePostForm({ zoneId }: { zoneId: string }) {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between items-center py-3 border-t">
+        <CardFooter className="flex justify-between items-center py-3 border-t border-gray-100 dark:border-gray-800 bg-muted/10 dark:bg-muted/5">
           <div className="flex items-center gap-2">
             <input
               type="file"

@@ -144,6 +144,42 @@
   "dashboard": {
     "welcome": "Bienvenue sur Hoodly !",
     "joinNeighborhoodPrompt": "Rejoignez un quartier pour commencer à interagir avec vos voisins.",
+    "widgets": {
+      "myZone": {
+        "title": "Mon Quartier",
+        "membersCount": "{{count}} voisins",
+        "unverifiedWarning": "Compte non vérifié. Soumettez vos justificatifs pour interagir dans le quartier."
+      },
+      "weather": {
+        "title": "Météo à {{city}}",
+        "title_local": "Météo locale",
+        "wmo": {
+          "clearSky": "Ciel dégagé",
+          "cloudyPart": "Partiellement nuageux",
+          "cloudy": "Couvert",
+          "fog": "Brouillard",
+          "rain": "Pluie",
+          "snow": "Neige",
+          "thunderstorm": "Orageux",
+          "variable": "Météo variable"
+        }
+      },
+      "wallet": {
+        "title": "Mon Portefeuille",
+        "points": "{{count}} pts",
+        "description": "Utilisez vos points pour louer du matériel ou demander des services à vos voisins.",
+        "proposeService": "Proposer un service"
+      },
+      "guidelines": {
+        "warning": "Chaque publication et service partagé renforce la cohésion de notre quartier. Soyez respectueux et solidaire dans vos échanges."
+      },
+      "event": {
+        "title": "Prochain événement",
+        "noEvents": "Aucun événement prévu prochainement.",
+        "joinBtn": "Participer à l'événement",
+        "allEventsBtn": "Voir tous les événements"
+      }
+    },
     "statusBanner": {
       "verificationRefused": "Vérification refusée",
       "verificationInProcess": "Vérification en cours",

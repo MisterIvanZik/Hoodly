@@ -22,10 +22,22 @@ interface PostCardProps {
 }
 
 const typeConfig = {
-  [PostType.DISCUSSION]: { color: 'bg-blue-100 text-blue-800', icon: MessageCircle },
-  [PostType.SERVICE]: { color: 'bg-green-100 text-green-800', icon: Wrench },
-  [PostType.EVENT]: { color: 'bg-purple-100 text-purple-800', icon: Calendar },
-  [PostType.ALERT]: { color: 'bg-red-100 text-red-800', icon: AlertTriangle },
+  [PostType.DISCUSSION]: { 
+    color: 'bg-blue-50/80 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-100/50 dark:border-blue-900/30', 
+    icon: MessageCircle 
+  },
+  [PostType.SERVICE]: { 
+    color: 'bg-emerald-50/80 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30', 
+    icon: Wrench 
+  },
+  [PostType.EVENT]: { 
+    color: 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/30', 
+    icon: Calendar 
+  },
+  [PostType.ALERT]: { 
+    color: 'bg-rose-50/80 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30', 
+    icon: AlertTriangle 
+  },
 }
 
 export function PostCard({ post, currentUserId }: PostCardProps) {
@@ -86,7 +98,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden rounded-2xl border-none shadow-sm hover:shadow-md transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-black/[0.04] dark:ring-white/[0.04]">
       <CardHeader className="flex flex-row items-start justify-between p-4 pb-2">
         <div className="flex items-center gap-3">
           <Avatar>
@@ -157,11 +169,11 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 flex gap-4">
+      <CardFooter className="p-4 pt-0 flex gap-3 border-t border-gray-100/50 dark:border-gray-800/50 bg-muted/5 dark:bg-muted/2 mt-3">
         <Button
           variant="ghost"
           size="sm"
-          className={`flex items-center gap-1.5 ${isLiked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground'}`}
+          className={`flex items-center gap-1.5 rounded-xl transition-all hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 ${isLiked ? 'text-rose-500 hover:text-rose-600' : 'text-muted-foreground hover:text-rose-500'}`}
           onClick={() => {
             if (!isVerified) {
               toast.error(t('dashboard.postCard.verificationRequired', 'Veuillez faire vérifier votre compte avec vos justificatifs pour interagir avec les publications.'))
@@ -170,17 +182,17 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
             toggleLike()
           }}
         >
-          <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 transition-transform duration-300 ${isLiked ? 'fill-rose-500 stroke-rose-500 scale-110' : ''}`} />
           <span>{likesCount}</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className={`flex items-center gap-1.5 ${isCommentsExpanded ? 'text-primary' : 'text-muted-foreground'}`}
+          className={`flex items-center gap-1.5 rounded-xl transition-all hover:bg-indigo-50 dark:hover:bg-indigo-950/20 active:scale-95 ${isCommentsExpanded ? 'text-[#2c308e] dark:text-indigo-400' : 'text-muted-foreground hover:text-[#2c308e] dark:hover:text-indigo-400'}`}
           onClick={() => setIsCommentsExpanded((prev) => !prev)}
         >
           <MessageCircle className="w-4 h-4" />
-          <span>{t('dashboard.postCard.commentsCount', { count: commentsCount, defaultValue: `${commentsCount} commentaires` })}</span>
+          <span>{t('dashboard.postCard.commentsCount', { count: commentsCount, defaultValue: `${commentsCount} de commentaires` })}</span>
         </Button>
       </CardFooter>
 
