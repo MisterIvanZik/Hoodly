@@ -56,6 +56,42 @@
     "points_one": "{{count}} point",
     "points_other": "{{count}} points"
   },
+  "desktop": {
+    "title": "Desktop Application",
+    "subtitle": "Manage incidents in your area from your computer, even without an internet connection. Reserved for moderators and administrators.",
+    "appName": "Hoodly Desktop",
+    "version": "Version {{version}}",
+    "requirements": "Requires Java 21 or higher",
+    "downloadButton": "Download .jar",
+    "featuresTitle": "Features",
+    "features": {
+      "offline": {
+        "title": "Offline Mode",
+        "description": "View and edit incidents even without a connection. Changes sync automatically once the network returns."
+      },
+      "incidents": {
+        "title": "Incident Management",
+        "description": "Create, track, and resolve incidents in your area directly from your desktop."
+      },
+      "conflict": {
+        "title": "Conflict Resolution",
+        "description": "In case of simultaneous modifications, the app allows you to choose between the local version and the server version."
+      },
+      "stats": {
+        "title": "Statistics & Charts",
+        "description": "Visualize the distribution of incidents by type, status, and time period."
+      },
+      "plugins": {
+        "title": "Built-in Plugins",
+        "description": "CSV export, social analysis, monthly calendar — tools built directly into the application."
+      }
+    },
+    "warning": {
+      "text1": "The",
+      "text2": "file requires Java 21. If Java is not installed, download it from",
+      "text3": "then launch the app using"
+    }
+  },
   "contractDetail": {
     "toastDownloadSuccess": "Contract PDF download started!",
     "toastDownloadError": "Error downloading the contract PDF.",
@@ -238,7 +274,8 @@
     "application": "Application",
     "settings": "Settings",
     "help": "Help & Support",
-    "resident": "Resident"
+    "resident": "Resident",
+    "desktopApp": "My Desktop App"
   },
   "events": {
     "categories": {

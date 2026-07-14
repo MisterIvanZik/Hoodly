@@ -56,6 +56,42 @@
     "points_one": "{{count}} point",
     "points_other": "{{count}} points"
   },
+  "desktop": {
+    "title": "Application Bureau",
+    "subtitle": "Gérez les incidents de votre zone depuis votre ordinateur, même sans connexion internet. Réservée aux modérateurs et administrateurs.",
+    "appName": "Hoodly Bureau",
+    "version": "Version {{version}}",
+    "requirements": "Nécessite Java 21 ou supérieur",
+    "downloadButton": "Télécharger le .jar",
+    "featuresTitle": "Fonctionnalités",
+    "features": {
+      "offline": {
+        "title": "Mode hors-ligne",
+        "description": "Consultez et modifiez les incidents même sans connexion. Les changements se synchronisent automatiquement au retour du réseau."
+      },
+      "incidents": {
+        "title": "Gestion des incidents",
+        "description": "Créez, suivez et résolvez les incidents de votre zone directement depuis votre bureau."
+      },
+      "conflict": {
+        "title": "Résolution de conflits",
+        "description": "En cas de modification simultanée, l'app vous propose de choisir entre la version locale et la version serveur."
+      },
+      "stats": {
+        "title": "Statistiques & graphiques",
+        "description": "Visualisez la répartition des incidents par type, statut et période."
+      },
+      "plugins": {
+        "title": "Plugins intégrés",
+        "description": "Export CSV, analyse sociale, calendrier mensuel — des outils directement dans l'application."
+      }
+    },
+    "warning": {
+      "text1": "Le fichier",
+      "text2": "nécessite Java 21. Si Java n'est pas installé, téléchargez-le sur",
+      "text3": "puis lancez l'app avec"
+    }
+  },
   "contractDetail": {
     "toastDownloadSuccess": "Téléchargement du contrat PDF démarré !",
     "toastDownloadError": "Erreur lors du téléchargement du contrat PDF.",
@@ -238,7 +274,8 @@
     "application": "Application",
     "settings": "Paramètres",
     "help": "Aide & Support",
-    "resident": "Habitant"
+    "resident": "Habitant",
+    "desktopApp": "Mon app Bureau"
   },
   "events": {
     "categories": {

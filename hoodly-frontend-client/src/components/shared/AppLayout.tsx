@@ -11,7 +11,6 @@ import {
   AlertTriangle,
   Settings,
   LogOut,
-  Search,
   UserIcon,
   LifeBuoy,
   MessageSquare,
@@ -157,18 +156,7 @@ export default function AppLayout() {
         </Sidebar>
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-[#fefefa]/80 dark:bg-gray-900/80 px-6 backdrop-blur-md">
-            <div className="flex-1 flex justify-center max-w-2xl mx-auto w-full">
-              <div className="relative w-full max-w-md">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder={t("common.searchPlaceholder")}
-                  className="h-10 w-full rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 pl-10 pr-4 text-sm outline-none transition-all focus:border-[#2c308e] dark:focus:border-indigo-400 focus:bg-white dark:focus:bg-gray-900 focus:ring-1 focus:ring-[#2c308e]/20 dark:text-gray-100"
-                />
-              </div>
-            </div>
-
+          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-end border-b border-gray-200 dark:border-gray-800 bg-[#fefefa]/80 dark:bg-gray-900/80 px-6 backdrop-blur-md">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => i18n.changeLanguage(i18n.language.startsWith('fr') ? 'en' : 'fr')}
@@ -242,7 +230,7 @@ export default function AppLayout() {
                     <DropdownMenuItem className="cursor-pointer rounded-lg py-2 dark:hover:bg-gray-800" asChild>
                       <Link to="/desktop" className="flex items-center w-full">
                         <Monitor className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                        <span>Mon app Desktop</span>
+                        <span>{t("dropdown.desktopApp")}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
