@@ -22,7 +22,7 @@ describe('VersionController', () => {
       const result = controller.getVersion();
       expect(result).toEqual({
         version: '1.0.0',
-        downloadUrl: 'https://releases.hoodly.app/hoodly-desktop-1.0.0.jar',
+        downloadUrl: 'https://github.com/zerck0/Hoodly/releases/download/v1.0.0/hoodly-desktop-1.0-SNAPSHOT.jar',
       });
     });
   });
