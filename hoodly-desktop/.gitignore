@@ -39,4 +39,4 @@ build/
 ### Mac OS ###
 .DS_Store
 
-src/main/resources/com/hoodly/hoodlydesktop/config.properties
+src/main/resources/com/hoodly/hoodlydesktop/config-local.properties
