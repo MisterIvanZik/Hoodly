@@ -20,6 +20,7 @@ import {
   FileText,
   Vote,
   Shield,
+  Monitor,
 } from "lucide-react"
 import {
   Sidebar,
@@ -237,6 +238,14 @@ export default function AppLayout() {
                       <span>{t("dropdown.planning")}</span>
                     </Link>
                   </DropdownMenuItem>
+                  {(user?.role === 'moderator' || user?.role === 'admin') && (
+                    <DropdownMenuItem className="cursor-pointer rounded-lg py-2 dark:hover:bg-gray-800" asChild>
+                      <Link to="/desktop" className="flex items-center w-full">
+                        <Monitor className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <span>Mon app Desktop</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
 
                   <DropdownMenuSeparator className="my-2 dark:border-gray-800" />
 
