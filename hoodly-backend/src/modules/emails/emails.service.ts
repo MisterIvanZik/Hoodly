@@ -10,12 +10,15 @@ import * as nodemailer from 'nodemailer';
 export class EmailsService {
   private readonly logger = new Logger(EmailsService.name);
   private transporter: nodemailer.Transporter | null = null;
+  private readonly resendApiKey: string | null = null;
 
   constructor(private readonly configService: ConfigService) {
     const host = this.configService.get<string>('SMTP_HOST', 'smtp.gmail.com');
     const port = Number(this.configService.get<number>('SMTP_PORT', 587));
     const user = this.configService.get<string>('SMTP_USER');
     const pass = this.configService.get<string>('SMTP_PASS');
+
+    this.resendApiKey = this.configService.get<string>('RESEND_API_KEY') || null;
 
     if (user && pass) {
       this.transporter = nodemailer.createTransport({
@@ -26,6 +29,8 @@ export class EmailsService {
           user,
           pass,
         },
+        connectionTimeout: 5000,
+        socketTimeout: 5000,
       });
     }
   }
@@ -36,9 +41,53 @@ export class EmailsService {
     body: string,
     html?: string,
   ): Promise<boolean> {
+    if (this.resendApiKey) {
+      try {
+        const from = this.configService.get<string>('SMTP_USER') || 'onboarding@resend.dev';
+        let resendFrom = this.configService.get<string>('RESEND_FROM') || from;
+        if (resendFrom.includes('gmail.com')) {
+          resendFrom = 'onboarding@resend.dev';
+        }
+
+        const formattedFrom = resendFrom === 'onboarding@resend.dev'
+          ? 'Hoodly <onboarding@resend.dev>'
+          : `"Hoodly" <${resendFrom}>`;
+
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: formattedFrom,
+            to: [to],
+            subject: subject,
+            text: body,
+            html: html || undefined,
+          }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || `Resend API returned status ${response.status}`);
+        }
+
+        this.logger.log(`E-mail (Resend) envoyé avec succès à ${to}`);
+        return true;
+      } catch (err: any) {
+        this.logger.error(
+          `Erreur lors de l'envoi de l'e-mail (Resend) à ${to} : ${err.message}`,
+        );
+        throw new InternalServerErrorException(
+          `Échec de l'envoi de l'e-mail via Resend : ${err.message}`,
+        );
+      }
+    }
+
     if (!this.transporter) {
       throw new InternalServerErrorException(
-        'Configuration SMTP manquante (SMTP_USER et SMTP_PASS non renseignés).',
+        'Configuration d\'envoi d\'e-mail manquante (RESEND_API_KEY ou SMTP non renseignés).',
       );
     }
 

@@ -41,6 +41,7 @@ export const PDFSignatureViewer: React.FC<PDFSignatureViewerProps> = ({
   const [numPages, setNumPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState<{ width: number; height: number }>({ width: 595, height: 842 })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -51,6 +52,7 @@ export const PDFSignatureViewer: React.FC<PDFSignatureViewerProps> = ({
     const loadPDF = async () => {
       try {
         setLoading(true)
+        setError(null)
         const token = getAccessToken ? await getAccessToken() : ''
         const loadingTask = pdfjsLib.getDocument({
           url: pdfUrl,
@@ -63,9 +65,12 @@ export const PDFSignatureViewer: React.FC<PDFSignatureViewerProps> = ({
         setPdfDoc(doc)
         setNumPages(doc.numPages)
         setLoading(false)
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erreur chargement PDF:', err)
-        setLoading(false)
+        if (active) {
+          setError(err.message || 'Impossible de charger le document PDF')
+          setLoading(false)
+        }
       }
     }
     loadPDF()
@@ -139,7 +144,19 @@ export const PDFSignatureViewer: React.FC<PDFSignatureViewerProps> = ({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
           </div>
         )}
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+        {error ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-50 text-slate-500">
+            <FileText size={40} className="text-slate-400 mb-2" />
+            <p className="text-sm font-semibold text-slate-800">
+              {t('PDFSignatureViewer.loadError', 'Impossible de charger le document PDF')}
+            </p>
+            <p className="text-xs text-slate-400 mt-1 max-w-[280px] break-words">
+              {error}
+            </p>
+          </div>
+        ) : (
+          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+        )}
 
         {zones.map((zone, index) => {
           if (zone.page !== currentPage) return null

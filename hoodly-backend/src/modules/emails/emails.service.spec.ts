@@ -57,6 +57,8 @@ describe('EmailsService', () => {
           user: 'user@test.com',
           pass: 'password',
         },
+        connectionTimeout: 5000,
+        socketTimeout: 5000,
       });
     });
 
