@@ -38,19 +38,19 @@ export class SignatureDetail {
   @Prop({ default: false })
   signed!: boolean;
 
-  @Prop({ immutable: true })
+  @Prop()
   signedAt?: Date;
 
-  @Prop({ immutable: true })
+  @Prop()
   ipAddress?: string;
 
-  @Prop({ immutable: true })
+  @Prop()
   signatureMetadata?: string;
 
-  @Prop({ immutable: true })
+  @Prop()
   hash?: string;
 
-  @Prop({ immutable: true })
+  @Prop()
   signatureImage?: string;
 
   @Prop({ select: false })

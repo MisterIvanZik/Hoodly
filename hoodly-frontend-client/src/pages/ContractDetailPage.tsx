@@ -241,7 +241,11 @@ export default function ContractDetailPage() {
                             className="max-h-[60px] object-contain pointer-events-none"
                           />
                           <span className="text-[8px] text-slate-400 font-light">
-                            {t('contractDetail.signedElectronicallyOn', { date: format(new Date(contract.clientSignature.signedAt!), 'dd/MM/yyyy à HH:mm', { locale: dateLocale }) })}
+                            {t('contractDetail.signedElectronicallyOn', {
+                              date: contract.clientSignature.signedAt
+                                ? format(new Date(contract.clientSignature.signedAt), 'dd/MM/yyyy à HH:mm', { locale: dateLocale })
+                                : 'Date inconnue'
+                            })}
                           </span>
                         </div>
                       ) : canSign && currentUserRole === 'client' ? (
@@ -278,7 +282,11 @@ export default function ContractDetailPage() {
                             className="max-h-[60px] object-contain pointer-events-none"
                           />
                           <span className="text-[8px] text-slate-400 font-light">
-                            {t('contractDetail.signedElectronicallyOn', { date: format(new Date(contract.providerSignature.signedAt!), 'dd/MM/yyyy à HH:mm', { locale: dateLocale }) })}
+                            {t('contractDetail.signedElectronicallyOn', {
+                              date: contract.providerSignature.signedAt
+                                ? format(new Date(contract.providerSignature.signedAt), 'dd/MM/yyyy à HH:mm', { locale: dateLocale })
+                                : 'Date inconnue'
+                            })}
                           </span>
                         </div>
                       ) : canSign && currentUserRole === 'provider' ? (
@@ -394,7 +402,7 @@ export default function ContractDetailPage() {
                 </div>
                 {clientSigned && (
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10px] text-slate-500 space-y-1 font-light leading-relaxed">
-                    <p><strong>{t('contractDetail.dateLabel')}</strong> {format(new Date(contract.clientSignature.signedAt!), 'dd MMMM yyyy à HH:mm', { locale: dateLocale })}</p>
+                    <p><strong>{t('contractDetail.dateLabel')}</strong> {contract.clientSignature.signedAt ? format(new Date(contract.clientSignature.signedAt), 'dd MMMM yyyy à HH:mm', { locale: dateLocale }) : 'Date inconnue'}</p>
                     <p className="text-emerald-600 font-semibold flex items-center gap-1 mt-1">
                       <CheckCircle size={10} /> {t('contractDetail.validationMfa')}
                     </p>
@@ -416,7 +424,7 @@ export default function ContractDetailPage() {
                 </div>
                 {providerSigned && (
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10px] text-slate-500 space-y-1 font-light leading-relaxed">
-                    <p><strong>{t('contractDetail.dateLabel')}</strong> {format(new Date(contract.providerSignature.signedAt!), 'dd MMMM yyyy à HH:mm', { locale: dateLocale })}</p>
+                    <p><strong>{t('contractDetail.dateLabel')}</strong> {contract.providerSignature.signedAt ? format(new Date(contract.providerSignature.signedAt), 'dd MMMM yyyy à HH:mm', { locale: dateLocale }) : 'Date inconnue'}</p>
                     <p className="text-emerald-600 font-semibold flex items-center gap-1 mt-1">
                       <CheckCircle size={10} /> {t('contractDetail.validationMfa')}
                     </p>
