@@ -163,6 +163,12 @@ export class EventsService {
       return { participating: false };
     }
 
+    if (new Date(event.date) < new Date()) {
+      throw new BadRequestException(
+        'Impossible de s\'inscrire à un événement déjà passé',
+      );
+    }
+
     if (event.participants.length >= event.capacite) {
       throw new BadRequestException('Cet événement est complet');
     }
