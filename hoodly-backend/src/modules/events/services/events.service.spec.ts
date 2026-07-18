@@ -378,13 +378,22 @@ describe('EventsService', () => {
     });
 
     it('should register participant if capacity not exceeded', async () => {
-      const e = makeEvent({ createurId: new Types.ObjectId(), participants: [], capacite: 5 });
+      const futureDate = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      const e = makeEvent({ createurId: new Types.ObjectId(), participants: [], capacite: 5, date: futureDate });
       eventModel.findById.mockResolvedValue(e);
 
       const result = await service.participer(e._id, new Types.ObjectId().toString());
 
       expect(result).toEqual({ participating: true });
       expect(neo4jService.syncParticipation).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if event date has passed', async () => {
+      const pastDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
+      const e = makeEvent({ createurId: new Types.ObjectId(), participants: [], capacite: 5, date: pastDate });
+      eventModel.findById.mockResolvedValue(e);
+
+      await expect(service.participer(e._id, new Types.ObjectId().toString())).rejects.toThrow(BadRequestException);
     });
   });
 

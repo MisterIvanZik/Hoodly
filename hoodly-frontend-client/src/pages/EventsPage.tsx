@@ -64,7 +64,8 @@ export default function EventsPage() {
       e.createurId !== userId &&
       !e.interesses.includes(userId) &&
       !e.participants.includes(userId) &&
-      !removedIds.has(e.id),
+      !removedIds.has(e.id) &&
+      new Date(e.date) >= new Date(),
   )
 
   const mesInterets = events.filter((e) => e.interesses.includes(userId))
